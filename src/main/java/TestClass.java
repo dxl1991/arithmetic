@@ -12,7 +12,7 @@ public class TestClass {
         //        quik_sort(temp);
         //        heapSort(temp);
         //        int[] temp2 = topK3(temp, 4);
-        InsertSort.insertSort(temp);
+        ShellSort.sellSort(temp);
         for (int i : temp) {
             System.out.print(i + ",");
         }
