@@ -1,6 +1,7 @@
 import com.sun.org.apache.bcel.internal.generic.Select;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * @Author dengxinlong
@@ -8,11 +9,17 @@ import java.util.Arrays;
  */
 public class TestClass {
     public static void main(String[] args){
-        int[] temp = {3, 5, 6, 1, 7, 9, 8, 4, 2, 6};
+        int count = 1000;
+        int max = 100000;
+        int[] temp = new int[count];
+        Random random = new Random();
+        for(int i=0;i<count;i++){
+            temp[i] = random.nextInt(max);
+        }
         //        quik_sort(temp);
         //        heapSort(temp);
         //        int[] temp2 = topK3(temp, 4);
-        CountSort.countSort(temp,9);
+        RadixSort.radixSort(temp,max);
         for (int i : temp) {
             System.out.print(i + ",");
         }
