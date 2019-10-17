@@ -8,11 +8,11 @@ import java.util.Arrays;
  */
 public class TestClass {
     public static void main(String[] args){
-        int[] temp = {3, 5, 6, 1, 7, 9, 8, 4, 2};
+        int[] temp = {3, 5, 6, 1, 7, 9, 8, 4, 2, 6};
         //        quik_sort(temp);
         //        heapSort(temp);
         //        int[] temp2 = topK3(temp, 4);
-        ShellSort.sellSort(temp);
+        CountSort.countSort(temp,9);
         for (int i : temp) {
             System.out.print(i + ",");
         }
