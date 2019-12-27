@@ -1,4 +1,6 @@
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import sort.RadixSort;
 
@@ -22,6 +24,7 @@ public class TestClass {
         for (int i : temp) {
             System.out.print(i + ",");
         }
+        Executors.newCachedThreadPool();
     }
 
 
