@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author dxl 当一个对象仅仅被weak reference指向, 而没有任何其他strong reference指向的时候, 如果GC运行, 那么这个对象就会被回收
+ * 当一个对象仅仅被weak reference指向, 而没有任何其他strong reference指向的时候, 如果GC运行, 那么这个对象就会被回收
+ * netty里有个ConcurrentWeakKeyHashMap可以使用
+ * @author dxl
  * @slogan CODE IS TRUTH
  * @date 2020/3/11 10:29
  */
