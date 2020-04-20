@@ -28,7 +28,7 @@ public class QuickSort {
     //把left下标的元素找到自己的位置，使左边比自己小，右边比自己大
     public static int partition(int[] array, int left, int right) {
         int temp = array[left];
-        //左小标和右下标像中间靠拢，两边元素进行交换调整，当左右下标相等就找到了自己的下标
+        //左下标和右下标向中间靠拢，两边元素进行交换调整，当左右下标相等就找到了自己的下标
         while (left < right) {
             while (left < right && temp <= array[right]) {
                 right--;
