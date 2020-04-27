@@ -1,0 +1,110 @@
+
+Linux安装软件：rpm -ivh 软件名.rpm
+Linux卸载软件：yun -y remove xxx
+mysqld是MySQL服务器，mysql是客户端。可以用mysql连任何mysqld
+登录mysql ：mysql -u root -p -h 127.0.0.1 -P 3306
+Commands end with ; or \G
+Ctrl + L 清屏
+
+mysql的核心目录：
+   /var/lib/mysql    安装目录
+   /usr/share/mysql  放配置文件
+   /usr/init.d/mysql 启停脚本
+   /usr/bin :命令目录（放mysqladmin,mysqldump等命令）
+
+mysql配置文件：
+   /usr/share/mysql下面
+   my-huge.cnf    高端服务器 1-2G内存
+   my-large.cnf   中端服务器
+   my-medium.cnf  一般
+   my-small.cnf   较小
+   注意：以上配置文件mysql默认不能识别，默认识别的是：/etc/my.cnf   (5.5版本)
+                                                /etc/mysql-default.cnf  (5.6版本)
+mysql逻辑分层：
+   1、连接层 处理客户端连接
+   2、服务层 提供sql处理等各种用户使用接口
+            提供SQL优化器（MySQL QUery Optimizer）
+   3、引擎层 提供了各种存储数据的方式（InnoDB、MyISAM）
+            InnoDB : 事务优先（适合高并发，行锁）
+            MyISAM : 性能优先（表锁）
+   4、存储层 存储数据
+   https://www.cnblogs.com/annsshadow/p/5037667.html
+
+索引：
+   mysql索引使用了B+树的数据结构，B+树的每个节点不大于16KB，三层树高就可以存储两千万条数据，B+树的叶子节点用双向链表连接方便>或者<查询，每次查询次数都是B树的高度
+   Innodb引擎一定有簇索索引（叶子节点包含了数据）：主键索引（没有的话，mysql会寻找unique列或自动新增一列:_rowid），决定了数据的物理存储结构，不能为null
+   非聚集索引（辅助索引）：叶子节点中存储主键值，每次查找数据时，根据索引找到叶子节点中的主键值，根据主键值再到聚簇索引中得到完整的一行记录
+   联合索引：多个字段组成的索引，节点会按创建索引字段顺序依次比较排序，最左匹配原则（必须第一个字段开始，不能中断）
+   覆盖索引：select的列全部在联合索引里，所以在联合索引里找到了值就不需要返回主键索引里去取值了，减少回表的过程
+
+mysql> show engines;
++------------+---------+------------------------------------------------------------+--------------+------+------------+
+| Engine     | Support | Comment                                                    | Transactions | XA   | Savepoints |
++------------+---------+------------------------------------------------------------+--------------+------+------------+
+| MRG_MYISAM | YES     | Collection of identical MyISAM tables                      | NO           | NO   | NO         |
+| CSV        | YES     | CSV storage engine                                         | NO           | NO   | NO         |
+| MyISAM     | DEFAULT | Default engine as of MySQL 3.23 with great performance     | NO           | NO   | NO         |
+| InnoDB     | YES     | Supports transactions, row-level locking, and foreign keys | YES          | YES  | YES        |
+| MEMORY     | YES     | Hash based, stored in memory, useful for temporary tables  | NO           | NO   | NO         |
++------------+---------+------------------------------------------------------------+--------------+------+------------+
+mysql> show create table table_name; 查看表的创建语句
+
+sql性能优化：
+   explain + sql 可以查看sql的执行过程（扫描多少行，是否用到了索引，是否覆盖索引...）
+   字段分析：
+   1、id
+       id值相同（多表联合查询）--> 从上往下，顺序执行。数据小的表优先执行（笛卡尔积，数据小的先相乘，中间结果越小）
+       id值不同（子查询）--> id值越大越先执行。在嵌套查询时，先查内层，再查外层
+       id值有相同又有不同（联合查询+子查询）--> id值越大越先执行,id相同的顺序执行
+   2、select_type
+       PRIMARY --> 包含子查询sql中的主查询（最外层）
+       SUBQUERY --> 包含子查询sql中的子查询（非最外层）
+       SIMPLE --> 简单查询（不包含子查询、union）
+       DERIVED --> 衍生查询（使用到了临时表）
+           a.在from子查询中只有一张表
+             例：select cr.cname from (select * from course where tid in (1,2)) cr; 这个course就是derived
+           b.在from子查询中，如果有table1 union table2，则table1就是derived，table2就是union
+             例：select cr.cname from (select * from course where tid = 1 union select * from course where tid = 2)) cr;
+       UNION --> 上例
+       UNION RESULT --> 告知开发人员，哪些表之间存在union查询
+   3、table
+      告知是那张表（可能是临时表）
+   4、type：索引类型、类型
+      system > const > eq_ref > ref > range > index > all
+      要对type进行优化，前提是要有索引。system，const只是理想情况，实际能达到ref>range
+
+      system --> 只有一条数据的系统表 或 衍生表只有一条数据的主查询
+      const --> 仅仅能查询到一条数据的sql，用于primary key 或 unique索引
+      eq_ref --> 唯一性索引：对于每个索引键的查询，返回匹配唯一行数据，常见于primary key 或 unique索引（有且只有1个，不能多，不能0）
+      ref --> 非唯一性索引：对于每个索引键的查询，返回匹配有多行数据（0个或多个）
+      range --> 检索指定范围的行，where后面是一个范围查询（between，in，> < >= <=），(in 有时候会失效会转为all)
+      index --> 查询全部索引中的数据，只需要扫描索引表  例：select tid from teacher;  tid是索引
+      all --> 查询全部表中数据  例：select tid from teacher;  tid不是索引
+   5、possible_keys
+      可能用到的索引，可能不准
+   6、key
+      实际用到的索引
+   7、key_len
+      索引的长度（索引字段类型字节长度之和），用于判断复合索引是否被完全使用
+      如果索引字段可以为null，则会使用1个字节用于标识
+      如果索引字段为可变长度，用两个字节标识可变长度
+      utf8：1个字符3个字节
+      gbk：一个字符2个字节
+      latin：一个字符1个字节
+   8、ref
+      指明当前表所参照的字段
+      select ... where a.c = b.x;(其中b.x可以为常量，const) a.c是索引字段并且a ref了 b.x
+   9、rows
+      被索引优化查询的数据个数，就是通过索引实际用到这个表里数据个数
+   10、extra
+      using filesort : 性能消耗大；需要“额外”的一次排序（查询）。一般出现在order by语句
+           例：select * from table where a1 = “ order by a2; 用a1查找完，再用a2排序的时候会再去表里查找一次
+           小结：对于单索引，如果排序和查找是同一个字段，不会出现using filesort；否则会出现。
+                对于复合索引，不能跨列（最佳左前缀，where和order by拼起来，不要跨列使用）
+      using temporary：性能消耗大，用到了临时表。一般在group by语句
+           例：select * from table where a1 = in(1,2,3) group by a2; 用a1查找完，再用a2分组的时候会再去表里查找一次，并用临时表分组
+      using index：性能提升；覆盖索引，不用回表查询
+      using where：需要回表查询
+      impossible where：where子句永远为false
+           例：select * from table where a1 = 1 and a1 = 2;
+
