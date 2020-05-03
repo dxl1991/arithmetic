@@ -4,7 +4,7 @@ Linux卸载软件：yun -y remove xxx
 mysqld是MySQL服务器，mysql是客户端。可以用mysql连任何mysqld
 登录mysql ：mysql -u root -p -h 127.0.0.1 -P 3306
 Commands end with ; or \G
-Ctrl + L 清屏
+Ctrl + L 或 system clear  清屏
 
 mysql的核心目录：
    /var/lib/mysql    安装目录
@@ -23,12 +23,24 @@ mysql配置文件：
 mysql逻辑分层：
    1、连接层 处理客户端连接
    2、服务层 提供sql处理等各种用户使用接口
-            提供SQL优化器（MySQL QUery Optimizer）
+            提供SQL优化器（MySQL Query Optimizer）
    3、引擎层 提供了各种存储数据的方式（InnoDB、MyISAM）
-            InnoDB : 事务优先（适合高并发，行锁）
-            MyISAM : 性能优先（表锁）
+            InnoDB : 事务优先（适合高并发，行锁，开销大，可能死锁）
+            MyISAM : 性能优先（表锁，开销小，无死锁）
    4、存储层 存储数据
    https://www.cnblogs.com/annsshadow/p/5037667.html
+
+sql执行顺序：
+ 1 FROM <left_table>
+ 2 ON <join_condition>
+ 3 <join_type> JOIN <right_table>
+ 4 WHERE <where_condition>
+ 5 GROUP BY <group_by_list>
+ 6 HAVING <having_condition>
+ 7 SELECT
+ 8 DISTINCT <select_list>
+ 9 ORDER BY <order_by_condition>
+10 LIMIT <limit_number>
 
 索引：
    mysql索引使用了B+树的数据结构，B+树的每个节点不大于16KB，三层树高就可以存储两千万条数据，B+树的叶子节点用双向链表连接方便>或者<查询，每次查询次数都是B树的高度
@@ -47,6 +59,9 @@ mysql> show engines;
 | InnoDB     | YES     | Supports transactions, row-level locking, and foreign keys | YES          | YES  | YES        |
 | MEMORY     | YES     | Hash based, stored in memory, useful for temporary tables  | NO           | NO   | NO         |
 +------------+---------+------------------------------------------------------------+--------------+------+------------+
+mysql 的增删改需要commit，但是系统默认会自动commit。使用mysql> show variables like '%autocommit%';来进行查看数据库是否是自动commit
+set autocommit = 0; 关闭自动提交
+oracle 默认不自动提交，需手动提交
 mysql> show create table table_name; 查看表的创建语句
 
 sql性能优化：
@@ -85,7 +100,7 @@ sql性能优化：
    6、key
       实际用到的索引
    7、key_len
-      索引的长度（索引字段类型字节长度之和），用于判断复合索引是否被完全使用
+      索引的长度（用到的索引字段类型字节长度之和），用于判断复合索引是否被完全使用
       如果索引字段可以为null，则会使用1个字节用于标识
       如果索引字段为可变长度，用两个字节标识可变长度
       utf8：1个字符3个字节
@@ -107,4 +122,182 @@ sql性能优化：
       using where：需要回表查询
       impossible where：where子句永远为false
            例：select * from table where a1 = 1 and a1 = 2;
+      using join buffer：mysql引擎使用了连接缓存
 
+    总结：（a,b,c,d）四个字段构成的复合索引
+           a、如果使用顺序完全一致，则复合索引全部使用；如果部分一致（且不跨列使用），则使用部分索引
+           b、where和order by拼起来，不跨列使用
+           c、索引升级后，旧的索引要删掉，防止干扰新的索引
+           d、索引需要逐步优化
+           e、含 in 的范围查询需要放where条件最后
+           f、不要再散列度低的字段建索引，散列度 = 字段去重行数 / 总行数
+
+两表查询优化：
+    a、小表驱动大表（where table1.id = table2.id；table1的数据量小，table1放前边性能更好）
+    b、索引建立在经常使用字段上（一般情况，左外连接给左表加，右外连接给右表加）
+避免索引失效原则：
+    a、复合索引，不要跨列使用
+    b、复合索引，尽量使用全索引匹配
+    c、不要在索引上进行任何操作（计算，函数，类型转换），否则索引失效（复合索引的前边字段失效，则全部失效）
+    d、复合索引不能使用不等于（!=  <>）或者 is null（is not null），否则索引失效
+    e、尽量使用索引覆盖
+    f、like查询尽量使用“常量”开头，以“%”开头索引失效
+    g、尽量不要使用类型转换（显示、隐式），否则索引失败（name = 123 这种失败；name = '123' 这种不失败）
+    h、尽量不要使用or，否则索引失败（左边的索引都会失效）
+   我们学的索引优化，是一个大部分情况适用结论，但是由于sql优化器等原因，结论不是100%适用
+   一般而言，范围查询（> < in），自身有效，之后的索引失效。（复合索引的B+树结构特性造成，叶子节点是有序链表，节点是按左至右排序）
+
+一些其他的优化方法
+  1、exist 和 in
+   如果主查询的数据集大，则使用in
+   如果子查询的数据集大，则使用exist
+   select ...from table where 字段 in (子查询)
+   select ...from table where exist (子查询)
+   exist语法：用于检查子查询是否至少会返回一行数据，该子查询实际上并不返回任何数据，而是返回值True或False
+   一种通俗的可以理解为：将主查询表的每一行，代入内查询作为检验，如果内查询返回的结果取非空值，则EXISTS子句返回TRUE，这一行行可作为外查询的结果行，否则不能作为结果。
+  2、order by
+   using filesort 有两种算法：双路排序，单路排序
+   mysql 4.1之前默认使用双路排序：两次磁盘io，一次读取排序字段，在buffer中排序，再一次读取其他字段
+   mysql 4.1之后默认使用单路排序：一次读取全部字段，在buffer中排序。但是单路排序如果数据太大，会“分片”读取到buffer里
+   优化：
+     a.合理使用单路，双路；合理设置buffer大小，set max_length_for_sort_data 1024 单位字节
+     b.避免使用select * ...
+     c.复合索引，不要跨列使用
+     d.保证排序字段排序的一致性，都是升序或降序
+  3、慢查询日志
+    默认是关闭的，在开发调试时打开，最终部署的时候关闭
+    查看是否开启：show variables like '%slow_query_log%';
+    设置开启：set global slow_query_log = 1;
+    设置慢查询阀值：set global long_query_time = 3; 超过3秒就记录，客户端重新登录后生效（不用重启服务）
+    设置日志路径：set global slow_query_log_file = /var/lib/mysql/localhost-slog.log
+    查看有几条慢查询日志：show global status like '%slow_queries%'
+    通过打开慢查询日志 或者使用 mysqldumpslow 命令查看日志
+    --获取返回记录最多的3个sql
+      mysqldumpslow -s r -t 3 /var/lib/mysql/localhost-slog.log
+    --获取访问记录最多的3个sql
+      mysqldumpslow -s c -t 3 /var/lib/mysql/localhost-slog.log
+    --按照时间排序，前10条包含left join查询条件的sql
+      mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/localhost-slog.log
+
+记录所有执行的sql（这些日志很费性能，线上要关闭）
+   1、profiles
+      show variables like '%profiling%'; 查看profiling是否开启，默认是关闭的
+      set profiling = on; 打开profiles，之后所有的执行sql将记录
+      show profiles; 查看所有sql执行语句花费的时间，但是不精确，只能看到总共花费时间
+   2、profile
+      show profile all for query 上一步查询到的query_id; 查看sql详细执行时间
+      show profile cpu block io for query query_id; 只看sql执行花费在CPU和io相关时间
+   3、全局查询日志（只记录sql执行的时间点，不记录花费时间）
+      show variables like '%general_log%'; 查看全局日志是否开启，默认关闭
+      set global general_log = 1; 开启全局日志，之后所有sql将记录
+      1)记录到表里
+      set global log_output = 'table'; 设置将sql记录到mysql.general_log表里
+      2)记录到文件里
+      set global log_output = 'file'; 设置将sql记录到文件里
+      set global general_log_file = '/tmp/general.log'; 设置记录的文件路径
+
+锁：
+  查看加加锁的表：show open tables;
+  加锁：lock table table_name1 read/write , table_name2 read/write , ....;
+  释放锁：unlock tables;
+  ---------表锁-----------
+  分类：
+     1、读锁：（表锁）自己：只能读，不能写，对别的表不能读，不能写；别人：可以读这个表，但是不能写，写的话一直会等待直到释放锁
+     2、写锁：（表锁）自己：可以读，可以写，对别的表不能读，不能写；别人：不可以读写，读写的话会一直等待直到释放锁
+
+  MyISAM表级锁的锁模式
+    在select前，默认会对所有涉及到的表加读锁
+    在执行更新操作（DML）之前，默认会给涉及的表加写锁
+  分析表锁定：
+    查看哪些表加了锁：show open tables;
+    分析表锁的严重程度：show status like 'table%';
+                  参数：Table_locks_immediate：即可能获得到的锁数
+                        Table_locks_waited：需要等待的表锁数（该值越大，说明存在越大的锁竞争）
+              一般建议：Table_locks_immediate / Table_locks_waited > 5000 采用InnoDB，否则采用MyISAM
+
+  ---------行锁-----------
+  手动commit模式下
+      1、如果会话x对某条数据a进行DMX操作，则其他会话必须等会话x结算事务（commit/rollback）后才能对数据a进行操作
+      2、表锁是通过unlock tables解锁 或者 事务解锁，行锁通过事务解锁（commit/rollback）
+      3、行锁操作不同数据，互不影响
+  行锁注意事项
+      1、如果没有索引（或索引失效），行锁变表锁
+      2、行锁的一种特殊情况：间隙锁：值在范围内，但却不存在
+      3、DML如果有where，则实际加锁的范围就是where后面的范围（不是实际值，没有值的行也加锁，别人插入不了）
+      4、查询默认是不加锁
+  通过for update对query进行加锁
+      select * from table where id = 2 for update;
+  行锁分析
+      show status like '%innodb_row_lock%';
+
+用 BEGIN, ROLLBACK, COMMIT来实现
+    BEGIN 开始一个事务（开启事务后就不会自动提交了）
+    ROLLBACK 事务回滚
+    COMMIT 事务确认
+
+windows安装mysql：如果已经安装过，需先卸载mysql，再安装
+    卸载：通过电脑自带的卸载工具卸载
+          删除mysql缓存文件C:\ProgramData\MySQL
+          删除注册表regedit中的所有mysql相关配置
+          重启计算机
+    安装：
+       一直下一步，如果出现未响应，删除mysql缓存文件C:\ProgramData\MySQL,再重新打开D:\MySQL\MySQL Server 5.5\bin\MySQLInstanceConfig.exe
+
+主从复制：master 的 binary log ---> slave 的 relay log（中继日志文件）
+    1、master 写 binary log，（二进制日志事件）
+    2、slave将master的binary log拷贝到自己的relay log中
+    3、slave将数据读取到自己的数据库中（中继日志事件）
+  二进制日志log-bin作用：
+  　　1、以二进制形式记录更改数据库的SQL语句（insert，update，delete，create，drop，alter等）。
+  　　2、用于MySQL主从复制。
+  　　3、增量数据备份及恢复
+
+  配置：windows :my.ini文件
+        linux :mys.cnf文件
+        关闭防火墙:service iptables stop
+        远程访问授权：grant 命令
+  每次进行主从同步前，需要观察master的最新状态 show master status;
+          （mysql-bin.000001、107）--->当前binary log的文件名、位置(slave配置需要)
+
+  开启主从同步
+  start slave:
+  show slave status \G  查看释放开启同步，Slave_IO_Running 和 Slave_SQL_Running 要是yes
+
+分库分表
+   当单表数据行数达到500万行，推荐分表
+   垂直拆分，水平拆分
+   跨库的关联查询解决
+       1、字段冗余，常用字段冗余存储在不同的表
+       2、全局表，一些配置表可以多个服存放
+       3、RPC 调用，系统组装数据
+   分布式事务解决
+       1、seata  其前身是fescar，是一种分布式事务的解决方案
+       2、Atomikos
+       3、LCN
+   水平拆分（考虑：扩容缩容、热点数据）
+       1、按时间拆分
+       2、range
+       3、取模
+       4、一致性hash（hash环）
+   水平分库分表带来的问题
+       1、翻页查询
+       2、全局id
+   第三方解决方案：
+       1、sharding JDBC ---> 动态选择数据库
+          绑定表：两张表同字段使用同一个分片算法，并且绑定
+          广播表：每个库都插入相同数据
+          动态表：实际表名是逻辑表名+动态字符拼接
+       2、mycat
+
+mybatis generator 工具可以生成mapper代码
+
+第一范式：数据库中的每一列都是不可分割的基本数据项，即实体中的某个属性不能有多个值或者不能有重复的属性（每列不能再拆分）
+第二范式：满足第二范式必须先满足第一范式，第二范式要求数据库的每个实例或行必须可以被唯一的区分（要有主键）
+第三范式：满足第三范式必须先满足第二范式，第三范式要求一个数据库表中不包含已在其他表中已包含的非主关键字信息（不能冗余）
+
+事务隔离级别
+    未提交读(Read Uncommitted)：允许脏读，其他事务只要修改了数据，即使未提交，本事务也能看到修改后的数据值。也就是可能读取到其他会话中未提交事务修改的数据
+    提交读(Read Committed)：只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)。
+    可重复读(Repeated Read)：可重复读。无论其他事务是否修改并提交了数据，在这个事务中看到的数据值始终不受其他事务影响。
+    串行读(Serializable)：完全串行化的读，每次读都需要获得表级共享锁，读写相互都会阻塞
+    MySQL数据库(InnoDB引擎)默认使用可重复读（ Repeatable read)

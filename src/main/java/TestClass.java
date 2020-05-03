@@ -1,4 +1,8 @@
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,12 +37,7 @@ public class TestClass {
 //            System.out.print(i + ",");
 //        }
 //        Executors.newCachedThreadPool();
-        new Thread(()->{
-            System.out.println(ContainerSingleton.getInstance("RandomCount"));
-        }).start();
-        new Thread(()->{
-            System.out.println(ContainerSingleton.getInstance("RandomCount"));
-        }).start();
+
     }
 
 
