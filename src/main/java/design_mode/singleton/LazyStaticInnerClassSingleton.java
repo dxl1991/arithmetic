@@ -1,4 +1,4 @@
-package singleton;
+package design_mode.singleton;
 
 /**
  * @author dxl

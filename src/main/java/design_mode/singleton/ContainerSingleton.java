@@ -1,6 +1,4 @@
-package singleton;
-
-import com.sun.corba.se.impl.ior.OldJIDLObjectKeyTemplate;
+package design_mode.singleton;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

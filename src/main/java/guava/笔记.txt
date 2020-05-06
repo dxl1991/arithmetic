@@ -1,0 +1,13 @@
+guava包是Google开源的一个工具包，包括很多厉害的工具：
+1、不可变集合
+   ImmutableList 等等
+2、缓存
+   LoadingCache
+3、字符串处理
+   连接器[Joiner]
+   拆分器[Splitter]
+   字符匹配器[CharMatcher]
+   字符集[Charsets]
+   大小写格式[CaseFormat]
+4、区间
+   Range（开/闭区间，包含，交集）

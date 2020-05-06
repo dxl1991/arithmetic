@@ -1,14 +1,4 @@
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import reference.Test;
-import singleton.ContainerSingleton;
-import sort.RadixSort;
+import design_mode.singleton.ContainerSingleton;
 
 /**
  * @Author dengxinlong
