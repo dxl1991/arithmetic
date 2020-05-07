@@ -1,8 +1,6 @@
 package AQS_lock;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
@@ -15,25 +13,25 @@ import java.util.concurrent.locks.StampedLock;
  */
 public class TestStampedLock {
     private final StampedLock stampedLock = new StampedLock();
-    private final Map<String,String> map = new HashMap<>();
+    private final Map<String, String> map = new HashMap<>();
 
-    public void write(String key,String value){
+    public void write(String key, String value) {
         long stamp = stampedLock.writeLock(); //获取写锁
-        try{
-            map.put(key,value);
-        }finally {
+        try {
+            map.put(key, value);
+        } finally {
             stampedLock.unlockWrite(stamp); //释放写锁
         }
     }
 
-    public String read(String key){
+    public String read(String key) {
         long stamp = stampedLock.tryOptimisticRead(); // 获得一个乐观读锁
         String value = map.get(key);
-        if(!stampedLock.validate(stamp)){ // 检查乐观读锁后是否有其他写锁发生
+        if (!stampedLock.validate(stamp)) { // 检查乐观读锁后是否有其他写锁发生
             stamp = stampedLock.readLock();  // 获取悲观读锁
-            try{
+            try {
                 value = map.get(key);
-            }finally {
+            } finally {
                 stampedLock.unlockRead(stamp); // 释放悲观读锁
             }
         }

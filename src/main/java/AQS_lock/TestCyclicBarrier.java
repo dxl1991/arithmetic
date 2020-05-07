@@ -17,25 +17,27 @@ public class TestCyclicBarrier {
         new TestCyclicBarrier().begin();
     }
 
-    private void begin(){
-        for(int i=0;i<5;i++){
-            new Thread(new Student(i,i)).start();
+    private void begin() {
+        for (int i = 0; i < 5; i++) {
+            new Thread(new Student(i, i)).start();
         }
         System.out.println("完成就餐安排，等人到齐");
     }
 
-    private class Student implements Runnable{
+    private class Student implements Runnable {
         private int sec;
         private int name;
-        public Student(int sec,int name){
+
+        public Student(int sec, int name) {
             this.sec = sec;
             this.name = name;
         }
+
         @Override
         public void run() {
             try {
                 Thread.sleep(sec * 1000);
-                System.out.println(name+"号到达");
+                System.out.println(name + "号到达");
                 cyclicBarrier.await();
                 //TODO 计数器减至0后执行
             } catch (InterruptedException e) {

@@ -233,13 +233,21 @@ java使用Unicode编码：Unicode编码则是采用双字节16位来进行编号
   2、Collections.synchronizedMap(new HashMap<>())
   3、ConcurrentHashMap
 线程安全的queue
-  1、ConcurrentLinkedQueue
-  2、ArrayBlockingQueue
-  3、LinkedBlockingQueue
+  1、ConcurrentLinkedQueue  全程采用cas，无锁操作，避免线程的上下文切换。无法设置队列大小
+  2、ArrayBlockingQueue   put 和 get 用同一个 ReenterLock。Condition实现阻塞，唤醒。不会封装Node节点，减少对象的创建。必须设置大小
+  3、LinkedBlockingQueue  put 和 get 锁分离。Condition实现阻塞，唤醒。可以设置队列大小
   4、LinkedTransferQueue
+     LinkedTransferQueue采用一种预占模式。意思就是消费者线程取元素时，如果队列不为空，则直接取走数据，
+     若队列为空，那就生成一个节点（节点元素为null）入队，然后消费者线程被等待在这个节点上，
+     后面生产者线程入队时发现有一个元素为null的节点，生产者线程就不入队了，直接就将元素填充到该节点，并唤醒该节点等待的线程，
+     被唤醒的消费者线程取走元素，从调用的方法返回。我们称这种节点操作为“匹配”方式。
   5、PriorityBlockingQueue
   6、SynchronousQueue
+    SynchronousQueue是一个内部只能包含一个元素的队列。
+    插入元素到队列的线程被阻塞，直到另一个线程从队列中获取了队列中存储的元素。
+    同样，如果线程尝试获取元素并且当前不存在任何元素，则该线程将被阻塞，直到线程将元素插入队列
   7、Disruptor
+  https://www.jianshu.com/p/ae6977886cec
 
 缓存穿透：请求数据，在redis里没找到，然后到数据库去查找也没找到，这个就叫穿透。用户可以用很多无效id请求攻击服务器，占用数据库资源。
 解决方案：布隆过滤器，将id用多个hash算法计算出多个指纹，将指纹放入bitmap里。如果布隆过滤器说没有那就一定没有，说有那就可能有。
@@ -304,3 +312,16 @@ tomcat基本结构
   7、context：代表一个web应用，包含多个wrapper
   8、wrapper：代表一个servlet
   Container处理请求是使用Pipeline-Value管道(责任链模式)来处理的
+tomcat优化：
+  1、设置connector的协议（nio、bio、apr）tomcat 8.0默认是NIO
+  2、设置connector的线程池大小，默认最大线程数是200
+  3、关闭host的unpackWARs（自动解压war包）、autoDeploy（自动部署），可以节省一个线程
+  4、关闭context的reloadable（热更新class），节省线程
+  5、设置jvm参数，内存占用什么的
+
+AQS（抽象的队列式同步器）原理
+  1、state      标记锁的状态，获取锁的线程数。读写锁里：高16位表示读锁状态，低16位表示写锁状态
+  2、双向队列   存放阻塞线程
+  3、CAS        改变锁的状态、节点状态，设置头结点、尾节点
+  4、自旋       被唤醒的线程会自旋，尝试获取锁
+  5、保存已经获得锁的线程，实现重入
