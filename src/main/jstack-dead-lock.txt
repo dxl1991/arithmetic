@@ -1,0 +1,179 @@
+2020-05-08 15:37:31
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.121-b13 mixed mode):
+在JBoss启动之后，也会唤起DestroyJavaVM线程，处于等待状态，等待其它线程（java线程和native线程）退出时通知它卸载JVM
+"DestroyJavaVM" #13 prio=5 os_prio=0 tid=0x0000000002fe2800 nid=0x443c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+nid=0x1238 是线程的唯一标识
+"thread-2" #12 prio=5 os_prio=0 tid=0x0000000019b1a800 nid=0x1238 waiting on condition [0x000000001a4cf000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000d64d1540> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:870)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1199)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:209)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:285)
+	at TestClass.lambda$testDeadLock$1(TestClass.java:64)
+	at TestClass$$Lambda$2/189568618.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:745)
+
+   Locked ownable synchronizers:
+	- <0x00000000d64d1570> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+
+"thread-1" #11 prio=5 os_prio=0 tid=0x0000000019b17800 nid=0xfc0 waiting on condition [0x000000001a3cf000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000d64d1570> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:870)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1199)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:209)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:285)
+	at TestClass.lambda$testDeadLock$0(TestClass.java:49)
+	at TestClass$$Lambda$1/1915910607.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:745)
+
+   Locked ownable synchronizers:
+	- <0x00000000d64d1540> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+用于启动服务的线程
+"Service Thread" #10 daemon prio=9 os_prio=0 tid=0x000000001909b800 nid=0x1d5c runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+用来调用JITing，实时编译装卸CLASS
+"C1 CompilerThread2" #9 daemon prio=9 os_prio=2 tid=0x000000001900a800 nid=0x22c8 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread1" #8 daemon prio=9 os_prio=2 tid=0x0000000018fc3800 nid=0x260c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread0" #7 daemon prio=9 os_prio=2 tid=0x0000000018fc0800 nid=0x4a70 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"Monitor Ctrl-Break" #6 daemon prio=5 os_prio=0 tid=0x0000000018fbf000 nid=0x2ff8 runnable [0x00000000195ce000]
+   java.lang.Thread.State: RUNNABLE
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)
+	at java.net.SocketInputStream.read(SocketInputStream.java:171)
+	at java.net.SocketInputStream.read(SocketInputStream.java:141)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)
+	- locked <0x00000000d652c548> (a java.io.InputStreamReader)
+	at java.io.InputStreamReader.read(InputStreamReader.java:184)
+	at java.io.BufferedReader.fill(BufferedReader.java:161)
+	at java.io.BufferedReader.readLine(BufferedReader.java:324)
+	- locked <0x00000000d652c548> (a java.io.InputStreamReader)
+	at java.io.BufferedReader.readLine(BufferedReader.java:389)
+	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:64)
+
+   Locked ownable synchronizers:
+	- None
+该线程负责接收外部命令，执行该命令并把结果返回给调用者，此种类型的线程通常在桌面程序中出现
+"Attach Listener" #5 daemon prio=5 os_prio=2 tid=0x0000000017bda800 nid=0x2e24 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+ 接收外部jvm命令，当命令接收成功后，会交给signal dispather 线程去进行分发到各个不同的模块处理命令，并且返回处理结果
+"Signal Dispatcher" #4 daemon prio=9 os_prio=2 tid=0x0000000017b8f000 nid=0x16c0 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+主要用于在垃圾收集前，调用对象的finalize()方法
+"Finalizer" #3 daemon prio=8 os_prio=1 tid=0x00000000030dd800 nid=0x38f8 in Object.wait() [0x0000000018ecf000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x00000000d6308ec8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x00000000d6308ec8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
+
+   Locked ownable synchronizers:
+	- None
+
+主要用于处理引用对象本身（软引用、弱引用、虚引用）的垃圾回收问题
+"Reference Handler" #2 daemon prio=10 os_prio=2 tid=0x00000000030d2000 nid=0x2190 in Object.wait() [0x0000000018dce000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x00000000d6306b68> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x00000000d6306b68> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+   Locked ownable synchronizers:
+	- None
+
+"VM Thread" os_prio=2 tid=0x0000000017b47000 nid=0x3650 runnable 
+垃圾回收线程，该线程会负责进行垃圾回收
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x0000000002ff8800 nid=0x45d8 runnable 
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x0000000002ffa000 nid=0x1acc runnable 
+
+"GC task thread#2 (ParallelGC)" os_prio=0 tid=0x0000000002ffb800 nid=0x2940 runnable 
+
+"GC task thread#3 (ParallelGC)" os_prio=0 tid=0x0000000002ffd000 nid=0x1fa4 runnable 
+该线程是JVM周期性任务调度的线程，它由WatcherThread创建，是一个单例对象。该线程在JVM内使用得比较频繁，比如：定期的内存监控、JVM运行状况监控
+"VM Periodic Task Thread" os_prio=2 tid=0x00000000190a4000 nid=0x1fb4 waiting on condition 
+
+JNI global references: 337
+
+
+Found one Java-level deadlock:
+=============================
+"thread-2":
+  waiting for ownable synchronizer 0x00000000d64d1540, (a java.util.concurrent.locks.ReentrantLock$NonfairSync),
+  which is held by "thread-1"
+"thread-1":
+  waiting for ownable synchronizer 0x00000000d64d1570, (a java.util.concurrent.locks.ReentrantLock$NonfairSync),
+  which is held by "thread-2"
+
+Java stack information for the threads listed above:
+===================================================
+"thread-2":
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000d64d1540> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:870)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1199)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:209)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:285)
+	at TestClass.lambda$testDeadLock$1(TestClass.java:64)
+	at TestClass$$Lambda$2/189568618.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:745)
+"thread-1":
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000d64d1570> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:870)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1199)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:209)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:285)
+	at TestClass.lambda$testDeadLock$0(TestClass.java:49)
+	at TestClass$$Lambda$1/1915910607.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:745)
+
+Found 1 deadlock.
+

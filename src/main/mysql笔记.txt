@@ -6,6 +6,8 @@ mysqld是MySQL服务器，mysql是客户端。可以用mysql连任何mysqld
 Commands end with ; or \G
 Ctrl + L 或 system clear  清屏
 
+windows 启动MySQL服务: net start MySQL
+
 mysql的核心目录：
    /var/lib/mysql    安装目录
    /usr/share/mysql  放配置文件

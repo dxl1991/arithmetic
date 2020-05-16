@@ -3,12 +3,13 @@ import java.util.Random;
 /**
  * @Author dengxinlong
  * @Date 2019/11/27
- * 吧m个苹果随机分成n份,每份至少一个
+ * 红包算法
+ * 把m个苹果随机分成n份,每份至少一个
  */
 public class RandomCount {
 
     public static int[] randomCount(int m, int n) {
-        if(n > m || n <= 0){
+        if (n > m || n <= 0) {
             return null;
         }
         int[] temp = new int[n];
@@ -17,7 +18,7 @@ public class RandomCount {
         }
         int remain = m - n;
         Random random = new Random();
-        if(remain == 1){
+        if (remain == 1) {
             temp[random.nextInt(n)] += remain;
             return temp;
         }

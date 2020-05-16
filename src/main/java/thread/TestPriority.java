@@ -6,11 +6,13 @@ package thread;
  * Thread.MAX_PRIORITY = 10;
  * Thread.NORM_PRIORITY = 5;
  * 优先级低只是意味着获得调度的概率低.并不是优先级低就不会被调用了.这都是看CPU的调度
+ * 线程优先级具有继承性，也就是说A线程启动B线程
  */
 public class TestPriority {
 
     public static void main(String[] args) {
-        System.out.println(Thread.currentThread().getName()+"-->"+Thread.currentThread().getPriority());
+        System.out.println(
+                Thread.currentThread().getName() + "-->" + Thread.currentThread().getPriority());
 
 
         MyPriority myPriority = new MyPriority();
@@ -39,14 +41,14 @@ public class TestPriority {
     }
 
 
-
 }
 
 
-class MyPriority implements Runnable{
+class MyPriority implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName()+"-->"+Thread.currentThread().getPriority());
+        System.out.println(
+                Thread.currentThread().getName() + "-->" + Thread.currentThread().getPriority());
     }
 }

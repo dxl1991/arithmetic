@@ -9,6 +9,7 @@ import java.util.concurrent.CyclicBarrier;
  * @date 2020/4/15 10:27
  * 可重复使用
  * 场景：所有线程到达一个状态后，然后各自去做自己的事情。await一次，计数器减1，线程阻塞，计数器减到0后所有线程解除阻塞
+ *       主线程不会阻塞
  */
 public class TestCyclicBarrier {
     CyclicBarrier cyclicBarrier = new CyclicBarrier(5);

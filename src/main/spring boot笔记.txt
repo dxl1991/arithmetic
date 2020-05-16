@@ -69,13 +69,14 @@ public class A//表示A是一个 用于 配置的类
 		@ConditionalOnProperty(prefix = "spring.http.encoding", value = "enabled", matchIfMissing = true)
 		当属性满足要求时，此条件成立  ：要求 如果没有配置spring.http.encoding.enabled=xxx, 则成立。
 	
-	总结：1每一个XxAutoConfiguration 都有很多条件@ConditionalOnXxx，当这些条件都满足时，
+	总结：
+	1每一个XxAutoConfiguration 都有很多条件@ConditionalOnXxx，当这些条件都满足时，
 	则此配置自动装配生效（utf-8）。但是我们可以手工修改改 自动装配： XxxProperties文件中的  
 	prefix.属性名=value 
 	      2全局配置文件中的key， 来源于某个Properties文件中的 prefix+属性名
 		--boot通过XxAutoConfiguration实现自动装配 ，修改默认值 XxxProperties（ prefix+属性名）
 	     	
-		如何直到 spring boot开启了哪些自动装配、禁止了哪些自动装配： application.properties中 debug=true
+		如何知道 spring boot开启了哪些自动装配、禁止了哪些自动装配： application.properties中 debug=true
 		Positive matches列表 表示 spring boot自动开启的装配
 		Negative matches列表 表示spring boot在此时 并没有启用的自动装配。
 		
