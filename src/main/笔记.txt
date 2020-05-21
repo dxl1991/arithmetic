@@ -354,5 +354,50 @@ nexus搭建maven私有仓库
   2、proxy（代理仓库）：代理中央仓库、Apache下测试版本的jar包
   3、group（组仓库）：使用时连接组仓库，包含Hosted（宿主仓库）和Proxy（代理仓库），本地配置用这个仓库地址
 
+Jenkins
+  新建item-->选流水线-->流水线选 Pipeline script from SCM，从git上拉取脚本执行；流水线语法可以自动生成脚本代码；设置构建参数
+  拉取的代码在workspace目录下
+  注意：脚本里参数值要用双引号
+  def git_url = "git@github.com:dxl1991/spring-boot-demo.git"
+  node {
+     def mvnHome
+     stage('pull code') {
+        checkout([$class: 'GitSCM', branches: [[name: "*/${branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1', url: "${git_url}"]]])
+     }
+     stage('Build') {
+        bat label: '', script: 'mvn clean package'
+     }
+     stage('run') {
+        bat label: '', script: 'start /min java -jar target/spring-boot-demo.jar'
+     }
+  }
+
+算法练习网站：
+https://www.cs.usfca.edu/~galles/visualization/Algorithms.html
+
+32位jvm和64位jvm
+  32位JDK在32位和64位的操作系统中均可运行，堆最大内存4G
+  64位JDK仅能在64位的操作系统中运行，堆最大内存无限制，无法切换到Client模式
+  针对32-bit VM写的代码必须重新编译才能在64-bit VM工作
+
+https = http + SSL，可以拦截信息并查看，但是不能篡改
+正向代理代理的对象是客户端，反向代理代理的对象是服务端
+keepalive + nginx 实现nginx的高可用，对外提供一个虚拟ip，然后配置主从nginx
+
+spring boot的一次request处理
+   1、FrameworkServlet 继承 HttpServlet
+      doPost()
+   2、DispatcherServlet 继承 FrameworkServlet
+      doService() -> doDispatch()
+   3、HandlerAdapter
+      handle()
+   4、ServletInvocableHandlerMethod 继承 HandlerMethod
+      invokeAndHandle() -> invokeForRequest() -> bridgedMethod.invoke()
+AbstractHandlerMethodMapping的MappingRegistry 管理者所有 HandlerMethod （path和HandlerMethod映射）
+RequestMappingHandlerMapping 的 createRequestMappingInfo 判断方法是否被RequestMapping注解修饰
+
+
+
+
 
 
