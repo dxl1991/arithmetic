@@ -33,7 +33,23 @@ public class TestClass {
         //            System.out.print(i + ",");
         //        }
         //        Executors.newCachedThreadPool();
-        new TestClass().testWait();
+        System.out.println(Integer.toBinaryString(-3333));
+        writeVarInt32(-3333);
+        //        new TestClass().testWait();
+    }
+
+    public static void writeVarInt32(int value) {
+        while (true) {
+            if ((value & ~0x7F) == 0) {
+                byte b = (byte) value;
+                System.out.println(Integer.toBinaryString(value));
+                return;
+            } else {
+                byte b = (byte) ((value & 0x7F) | 0x80);
+                System.out.println(Integer.toBinaryString((value & 0x7F) | 0x80));
+                value >>>= 7;
+            }
+        }
     }
 
     private void testWait() {
