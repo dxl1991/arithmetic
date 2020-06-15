@@ -323,3 +323,5 @@ InnoDB的 MVCC ，是通过在每行记录的后面保存两个隐藏的列来�
 什么时候用myIsam，什么时候用innodb
 如果应用中需要执行大量的SELECT查询，那么MyISAM是更好的选择，支持全文索引，对like查询更友好。索引文件会压缩，小很多
 如果应用中需要执行大量的INSERT或UPDATE操作，则应该使度用InnoDB，这样可以提高多用户并发操作的性能
+
+mysql中有utf8和utf8mb4两种编码，在mysql中请大家忘记**utf8**，永远使用**utf8mb4**。这是mysql的一个遗留问题，mysql中的utf8最多只能支持3bytes长度的字符编码，对于一些需要占据4bytes的文字，mysql的utf8就不支持了，要使用utf8mb4才行

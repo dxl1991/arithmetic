@@ -9,7 +9,7 @@
         <module name="arithmetic" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="1.8">
+    <bytecodeTargetLevel>
       <module name="arithmetic" target="1.8" />
     </bytecodeTargetLevel>
   </component>

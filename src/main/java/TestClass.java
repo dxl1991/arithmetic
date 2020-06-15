@@ -1,5 +1,9 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,6 +52,26 @@ public class TestClass {
                 byte b = (byte) ((value & 0x7F) | 0x80);
                 System.out.println(Integer.toBinaryString((value & 0x7F) | 0x80));
                 value >>>= 7;
+                //        new TestClass().testWait();
+                //        long updateInterval = TimeUnit.SECONDS.toMillis(30);
+                //        System.out.println(updateInterval);
+            }
+        }
+    }
+
+    //多重循环，才能用lable
+    private static void testLable(){
+        List<Integer> list = Arrays.asList(1,2,3,4,5,6);
+        listLoop:
+        for(int i : list){
+            if(i % 2 == 0){
+                continue;
+            }
+            for(int j : list){
+                if(j == 4){
+                    continue listLoop;
+                }
+                System.out.println(i + "," + j);
             }
         }
     }

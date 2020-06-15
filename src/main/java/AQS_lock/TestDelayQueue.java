@@ -18,6 +18,8 @@ public class TestDelayQueue {
         while (true) {
             Node node = queue.take();//没有元素，或者元素还没到延时时间，会阻塞到延时时间
             System.out.println(node);
+            node.updateTime();
+            queue.add(node);
         }
     }
 
@@ -29,6 +31,10 @@ public class TestDelayQueue {
         Node(int sec, String info) {
             this.sec = sec;
             this.info = info;
+            updateTime();
+        }
+
+        private void updateTime(){
             time = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(sec);
         }
 
@@ -40,7 +46,7 @@ public class TestDelayQueue {
         @Override
         public int compareTo(Delayed o) {
             Node node = (Node) o;
-            return sec - node.sec;
+            return time > node.time ? 1 : -1;
         }
 
         @Override

@@ -447,3 +447,8 @@ protobuf编码方式：
   Varints：使用1到5个字节，数字越小，占用的字节越少，不利于处理大数和负数
   ZigZag：将有符号整数转换为无符号整数，进而能够使用Varints编码
 
+git换行符问题，文件一致却提示有修改
+解决方法：
+git config --global core.autocrlf input
+check out代码时，换行符会自动由LF转换为CRLF，而在commit时，Git也会将CRLF转换为LF，以方便在Windows上开发
+
