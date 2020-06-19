@@ -285,6 +285,8 @@ redis实现mq
   1、redis的列表键，lpush 放表头,rpop 表尾删除
   2、订阅/发布模式
 
+redis命令：INCR key 试key值自增
+
 strace -ff -o out /usr/java/bin/java TestOldSocket    Linux追踪java程序，输入到out开头的文件
 netstat -natp  查看tpc状态，谁和谁连接了，那个端口在监听
 ps -ef|grep 进程名  查看进程pid
@@ -451,4 +453,10 @@ git换行符问题，文件一致却提示有修改
 解决方法：
 git config --global core.autocrlf input
 check out代码时，换行符会自动由LF转换为CRLF，而在commit时，Git也会将CRLF转换为LF，以方便在Windows上开发
+
+linux root 目录下没有.ssh目录
+解决办法：ssh localhost
+
+生成对称秘钥：ssh-keygen -t rsa -C "249083650@qq.com"  //-C指定注释， -t指定秘钥类型，默认生成用于SSH-2的RSA密钥
+将公钥追加到 /root/.ssh/authorized_keys文件中 即可让远程主机免密登陆
 

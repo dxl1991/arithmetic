@@ -58,7 +58,12 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.50.Final</version>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/io.jpower.kcp/kcp-netty -->
+        <dependency>
+            <groupId>io.jpower.kcp</groupId>
+            <artifactId>kcp-netty</artifactId>
+            <version>1.4.9</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
