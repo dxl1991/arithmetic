@@ -40,23 +40,26 @@ public class UdpClient {
         try {
             datagramSocket = new DatagramSocket();
             //            byte[] buf = sendStr.getBytes();
-            byte[] buf = new byte[65507];//局域网数据包最大 = 65535(ip包头2个字节标识总长度) - 20( ip包头) - 8（udp包头）
+            byte[] buf =
+                    new byte[65507];//局域网数据包最大 = 65535(ip包头2个字节标识总长度) - 20( ip包头) - 8（udp包头） = 65507
             for (int i = 0; i < buf.length; i++) {
                 buf[i] = 'j';
             }
             InetAddress address = InetAddress.getByName(netAddress);
             datagramPacket = new DatagramPacket(buf, buf.length, address, PORT);
+            datagramSocket.setSoTimeout(5000);//设置接收数据的超时时间5秒
             datagramSocket.send(datagramPacket);
+            while (true) {
+                byte[] receBuf = new byte[1024];
+                DatagramPacket recePacket = new DatagramPacket(receBuf, receBuf.length);
+                datagramSocket.receive(recePacket);
+                String receStr = new String(recePacket.getData(), 0, recePacket.getLength());
+                System.out.println("收到数据包：" + receStr);
+                //获取服务端ip
+                String serverIp = recePacket.getAddress().getHostAddress();
+                System.out.println("服务器id：" + serverIp);
+            }
 
-            byte[] receBuf = new byte[1024];
-            DatagramPacket recePacket = new DatagramPacket(receBuf, receBuf.length);
-            datagramSocket.receive(recePacket);
-
-            String receStr = new String(recePacket.getData(), 0, recePacket.getLength());
-            System.out.println("收到数据包：" + receStr);
-            //获取服务端ip
-            String serverIp = recePacket.getAddress().getHostAddress();
-            System.out.println("服务器id：" + serverIp);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -68,7 +71,7 @@ public class UdpClient {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {

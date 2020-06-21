@@ -460,3 +460,11 @@ linux root 目录下没有.ssh目录
 生成对称秘钥：ssh-keygen -t rsa -C "249083650@qq.com"  //-C指定注释， -t指定秘钥类型，默认生成用于SSH-2的RSA密钥
 将公钥追加到 /root/.ssh/authorized_keys文件中 即可让远程主机免密登陆
 
+zookeeper分布式锁：
+   1、创建父节点（容器节点lock）
+   2、创建临时顺序节点 create -s -e /lock/seq
+   3、如果自己是顺序id最小节点则获得锁，否则监听比我小1的id节点
+   4、如果我监听的节点变化，我再获取节点列表，如果我最小，我就获得了锁
+   5、删除我的顺序节点，释放锁
+Curator有封装好的
+
