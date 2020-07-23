@@ -6,9 +6,9 @@ import java.net.InetAddress;
 
 /***
  * UDP Client端
- * 以太网（Ethernet）的数据帧在链路层（传输中的最小可识别单元）
- * IP包在网络层 　　
- * TCP或UDP包在传输层 　　
+ * 以太网（Ethernet）的数据帧在链路层（传输中的最小可识别单元），帧头14字节
+ * IP包在网络层，包头长度不固定，最小20字节
+ * TCP或UDP包在传输层，包头20,8字节
  * TCP或UDP中的数据（Data)在应用层 　　
  * 它们的关系是 == 数据帧｛IP包｛TCP或UDP包｛Data｝｝｝
  *

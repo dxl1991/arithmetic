@@ -64,6 +64,23 @@
             <artifactId>kcp-netty</artifactId>
             <version>1.4.9</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -87,12 +104,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>game-jar-with-dependencies</finalName>
+                            <finalName>jnaTest</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>NioServerTest</mainClass>
+                                    <mainClass>jna.TestMyJna</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

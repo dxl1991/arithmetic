@@ -15,7 +15,7 @@ public class KCPClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         UkcpChannel kcpCh = (UkcpChannel) ctx.channel();
-//        kcpCh.conv(KCPServer.CONV);
+        kcpCh.conv(KCPServer.CONV);
 
         System.out.println("remote address : " + ctx.channel().remoteAddress().toString());
     }

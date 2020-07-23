@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +49,56 @@ public class TestClass {
 //        AtomicInteger conv = new AtomicInteger(Integer.MAX_VALUE);
 //        System.out.println(conv.incrementAndGet());
 //        System.out.println(conv.incrementAndGet());
-        testTreeMap();
+//        testTreeMap();
+//        testConcurrentHashMap();
+//        System.out.println("邓新龙邓新龙邓新龙邓新龙".length());
+        sort();
+    }
+
+    public static void sort(){
+        List<Test> testList = new ArrayList<>();
+        for(int i=0;i<6;i++){
+            testList.add(new Test(i));
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Collections.sort(testList);
+        for(Test test : testList){
+            System.out.println(test);
+        }
+    }
+    static class Test implements Comparable<Test>{
+        int i;
+        long time;
+        Test(int i){
+            this.i = i;
+            this.time = System.currentTimeMillis();
+        }
+
+        @Override
+        public String toString() {
+            return "Test{" + "i=" + i + ", time=" + time + '}';
+        }
+
+        @Override
+        public int compareTo(Test o) {
+            return time >= o.time ? -1 : 1;
+        }
+    }
+
+    public static void testConcurrentHashMap(){
+        ConcurrentHashMap<Integer,String> map = new ConcurrentHashMap<>();
+        for(int i=0;i<10000;i++){
+            map.put(i,""+i);
+        }
+        System.out.println(map.size());
+        for(String s : map.values()){
+            map.remove(Integer.valueOf(s));
+        }
+        System.out.println(map.size());
     }
 
     public static void testTreeMap(){
