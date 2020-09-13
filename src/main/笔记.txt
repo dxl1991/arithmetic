@@ -507,3 +507,33 @@ logstash启动
 systemctl restart logstash
 检测配置文件是否有语法错误
 /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/ssjf-log.conf -t
+
+ByteBuf介绍：
+  分类：
+     1、是否池化
+     PooledByteBuf  缓存池
+     UnPooledByteBuf  非缓存池
+     2、存储地址
+     HeapByteBuf 堆内存（初始化快，但是推送网络io需要一次拷贝）
+     DirectByteBuf 直接内存（初始化慢，但是推送网络io零拷贝）
+
+  优势：
+    1、可变长
+    2、可池化（引用计数）
+    3、可实现零拷贝
+    4、读写双索引
+    5、灵活读写数据结构（可调整索引位置）
+
+Netty 的 Encode、Decoder
+  1、MessageToByteEncoder<Message> or ByteToMessageDecoder<Message>  将对象变为字节流 or 将字节流变为对象
+  2、MessageToMessageEncoder<Message> or MessageToMessageDecoder<Message> 将对象变为对象
+  3、ByteToMessageCodec<Message> or MessageToMessageCodec<Decode_Message,Encode_Message> encode和decode在一个类里
+
+Netty的对拆包粘包问题的处理
+  1、消息定长 FieldLengthFrameDecoder / FieldLengthFrameEncoder
+  2、消息末尾加分隔符
+     LineBasedFrameDecoder 以换行符结尾
+     DelimiterBasedFrameDecoder 自定义结尾标记
+  3、消息添加长度字段
+     LengthFieldPrepender 在encode过程中，在消息前加长度字段
+     LengthFieldBasedFrameDecoder 在index开始读length字段作为长度，然后读取长度字节
