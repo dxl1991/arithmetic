@@ -172,7 +172,7 @@ class文件的开头是一个魔数：0xCAFEBABE
 mybatis分页插件
 
 线程池执行任务流程：
-   1 使用核心线程执行
+   1 使用核心线程执行(优先使用空闲线程，没有再创建线程)
    2 核心线程数满了，放入队列
    3 队列满了，使用临时线程
    4 临时线程数满了，使用拒绝策略
@@ -366,9 +366,10 @@ nexus搭建maven私有仓库
   3、group（组仓库）：使用时连接组仓库，包含Hosted（宿主仓库）和Proxy（代理仓库），本地配置用这个仓库地址
 
 Jenkins
-  新建item-->选流水线-->流水线选 Pipeline script from SCM，从git上拉取脚本执行；流水线语法可以自动生成脚本代码；设置构建参数
+  新建item-->选流水线-->流水线选 Pipeline script from SCM，从git上拉取脚本执行；流水线语法可以自动生成脚本代码；设置构建参数（需安装插件Extended Choice Parameter Plug-In）
   拉取的代码在workspace目录下
   注意：脚本里参数值要用双引号
+  示例1：
   def git_url = "git@github.com:dxl1991/spring-boot-demo.git"
   node {
      def mvnHome
@@ -380,6 +381,22 @@ Jenkins
      }
      stage('run') {
         bat label: '', script: 'start /min java -jar target/spring-boot-demo.jar'
+     }
+  }
+  示例2：
+  node {
+     stage('Update') {
+        echo "code branch:${branch}"
+        checkout([$class: 'GitSCM', branches: [[name: "*/${branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'git@gitlab.dianchu.cc:20200135/ssjfserver.git']]])
+     }
+     stage('Build') {
+        sh label: '', script: 'mvn -Dmaven.test.failure.ignore clean package'
+     }
+     stage('Run') {
+        withEnv(['JENKINS_NODE_COOKIE=background_job']) {
+          sh label: '', script: '/game/deploy-pipeline.sh'
+  		sh label: '', script: '/game/check.sh'
+  	  }
      }
   }
 
@@ -408,6 +425,10 @@ https步骤：
 
 正向代理代理的对象是客户端，反向代理代理的对象是服务端
 keepalive + nginx 实现nginx的高可用，对外提供一个虚拟ip，然后配置主从nginx
+
+nginx 分多个配置文件：
+只需要在原来文件/etc/nginx/nginx.conf 的http 块下加一句话就可以了:
+include /etc/nginx/conf.d/*.conf;
 
 spring boot的一次request处理
    1、FrameworkServlet 继承 HttpServlet
@@ -507,6 +528,42 @@ logstash启动
 systemctl restart logstash
 检测配置文件是否有语法错误
 /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/ssjf-log.conf -t
+
+
+配置路径：
+/etc/elasticsearch/elasticsearch.yml
+/etc/logstash/conf.d/
+/etc/logstash/logstash.yml
+
+nginx
+nginx -c /etc/nginx/nginx.conf
+nginx -s stop
+nginx -s reload
+
+设置开机启动
+编写脚本 /etc/init.d/logstash
+        #!/bin/sh
+        case $1 in
+                start) systemctl start logstash;;
+                stop) systemctl stop logstash;;
+                restart) systemctl restart logstash;;
+                *) echo "require start|stop|restart" ;;
+        esac
+然后可以用 service logstash start 就可以启动
+
+
+shell编程是以"#"为注释，但对"#!/bin/sh"却不是。"#!/bin/sh"是对shell的声明
+#!/bin/sh 是指此脚本使用/bin/sh来解释执行，#!是特殊的表示符，其后面跟的是解释此脚本的shell的路径
+
+协程是基于线程的。内部实现上，维护了一组数据结构和 n 个线程，真正的执行还是线程，协程执行的代码被扔进一个待执行队列中，由这 n 个线程从队列中拉出来执行
+1. 内存消耗方面
+　　　　每个 goroutine (协程) 默认占用内存远比 Java 、C 的线程少。
+　　　　goroutine：2KB
+　　　　线程：8MB
+2. 线程和 goroutine 切换调度开销方面
+　　　　线程/goroutine 切换开销方面，goroutine 远比线程小
+　　　　线程：涉及模式切换(从用户态切换到内核态)、16个寄存器、PC、SP...等寄存器的刷新等。
+　　　　goroutine：只有三个寄存器的值修改 - PC / SP / DX.
 
 ByteBuf介绍：
   分类：

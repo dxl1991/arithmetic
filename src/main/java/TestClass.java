@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -52,9 +53,21 @@ public class TestClass {
 //        testTreeMap();
 //        testConcurrentHashMap();
 //        System.out.println("邓新龙邓新龙邓新龙邓新龙".length());
-        sort();
+//        sort();
+        testTreeMap();
     }
-
+    /**
+     * 中文、英文、数字、下划线、[]、-
+     * @param username
+     * @return
+     */
+    public static boolean checkUserName(String username) {
+        String regExp = "^[\\u4E00-\\u9FA5A-Za-z0-9_\\-\\[\\]]+$";
+        if (username.matches(regExp)) {
+            return true;
+        }
+        return false;
+    }
     public static void sort(){
         List<Test> testList = new ArrayList<>();
         for(int i=0;i<6;i++){
@@ -109,7 +122,7 @@ public class TestClass {
         map.put(1,"1");
         map.put(6,"6");
         map.put(9,"9");
-        Collection<String> temp = map.subMap(2,map.lastKey()+1).values();
+        Collection<String> temp = map.subMap(9,map.lastKey()).values();
         for(String s : temp){
             System.out.println(s);
         }

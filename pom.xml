@@ -81,6 +81,18 @@
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython-standalone</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.python/jython -->
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -104,12 +116,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>jnaTest</finalName>
+                            <finalName>testPy</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>jna.TestMyJna</mainClass>
+                                    <mainClass>python.TestPy</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
