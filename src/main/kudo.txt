@@ -1,0 +1,125 @@
+使用场景
+适用于那些既有随机访问，也有批量数据扫描的复合场景、高计算量的场景、使用了高性能的存储设备，包括使用更多的内存、支持数据更新，避免数据反复迁移、支持跨地域的实时数据备份和查询。
+
+架构
+一张表会分成若干个tablet，每个tablet包括MetaData元信息及若干个RowSet，RowSet包含一个MemRowSet及若干个DiskRowSet，DiskRowSet中包含一个BloomFile、Ad_hoc Index、BaseData、DeltaMem及若干个RedoFile和UndoFile（UndoFile一般情况下只有一个）。
+MemRowSet：用于新数据insert及已在MemRowSet中的数据的更新，一个MemRowSet写满后会将数据刷到磁盘形成若干个DiskRowSet。每次到达32M生成一个DiskRowSet。
+DiskRowSet：用于老数据的变更（mutation），后台定期对DiskRowSet做compaction，以删除没用的数据及合并历史数据，减少查询过程中的IO开销。
+BloomFile：根据一个DiskRowSet中的key生成一个bloom filter，用于快速模糊定位某个key是否在DiskRowSet中存在。
+Ad_hocIndex：是主键的索引，用于定位key在DiskRowSet中的具体哪个偏移位置。
+BaseData是MemRowSet flush下来的数据，按列存储，按主键有序。
+UndoFile是基于BaseData之前时间的历史数据，通过在BaseData上apply UndoFile中的记录，可以获得历史数据。
+RedoFile是基于BaseData之后时间的变更（mutation）记录，通过在BaseData上apply RedoFile中的记录，可获得较新的数据。
+DeltaMem用于DiskRowSet中数据的变更mutation，先写到内存中，写满后flush到磁盘形成RedoFile。
+把DiskRowSet分为了两部分：base data、delta stores。base data 负责存储基础数据，delta stores负责存储 base data 中的变更数据.
+
+kudu提供三种分区方式
+1、Rang Partitioning(范围分区)
+  范围分区可以根据存入数据的数据量，均衡的存储到各个机器上，防止机器出现负载不均衡现象
+  根据字段值的范围分区，比如 0<id<10为一个区，10<id<20一个区....
+      range分区的语句：
+      CREATE TABLE new_table PRIMARY KEY (name,age) PARTITION BY range(age) ( PARTITION 1<= VALUES <10, PARTITION 10<= VALUES <20, PARTITION 20<= VALUES <30 ) STORED AS KUDU AS SELECT name, age FROM lol;
+      与mysql类似的，kudu中range分区的表也是支持增加分区的，增加分区的语句为：
+      alter table new_table add range partition 30<=values<40
+2、Hash Partitioning ( 哈希分区 )
+  哈希分区通过哈希值将行分配到许多 buckets ( 存储桶 )之一。
+  哈希分区是一种有效的策略，当不需要对表进行有序访问时。
+  哈希分区对于在 tablet 之间随机散布这些功能是有效的，这有助于减轻热点和 tablet 大小不均匀。
+  这里有一个点就是hash分区是可以指定两个列的，注意hash(a),hash(b)和hash(a,b)的含义并不一样
+      hash分区的语句：
+      CREATE TABLE kudu_table ( id BIGINT, name STRING, PRIMARY KEY(id) ) PARTITION BY HASH PARTITIONS 16 STORED AS KUDU;
+      从别的表拉数据新建kudu表的语句：
+      CREATE TABLE kudu_table PRIMARY KEY (name,age) PARTITION BY HASH(name,age) PARTITIONS 8 STORED AS KUDU AS SELECT name, age FROM old_table;
+3、Multilevel Partitioning ( 多级分区 )
+  哈希和范围混合使用
+  哈希分区有利于提高写入数据的吞吐量，而范围分区可以避免tablet无限增长问题
+
+Kudu仅仅提供单行事务，也不支持多行事务
+
+
+kudu安装
+1、下载rpm
+　　地址：https://archive.cloudera.com/cdh6/6.2.1/redhat7/yum/RPMS/x86_64/
+　　下载所有kudu开头的rpm包
+2、安装：
+　　rpm -ivh * --nodeps
+3、启动：
+　　service kudu-master start
+　　service kudu-tserver start
+4、指令：
+   查看集群
+　　kudu cluster ksck localhost
+   查看master状态或flag
+　　kudu master status localhost
+　　kudu master get_flags localhost
+　　可以查看到bound_http_addresses的port，则访问地址：localhost:port 则是web管理页面。http://10.1.12.213:8051/
+   查看tserver状态或flag
+　　kudu tserver status localhost
+　　kudu tserver get_flags localhost
+   查看表
+　　kudu table list 10.1.12.213
+5、安装ntp（kudu集群启动时需要ntp服务进行时间同步）
+   yum -y install ntp #安装ntp服务
+   service ntpd start #启动ntp服务
+   chkconfig ntpd on #设置开机启动
+
+CDH安装
+ https://blog.csdn.net/summer089089/article/details/107605831?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param
+ 遇到问题：
+   当前管理的主机里没有发现agent机器，如果通过搜索添加主机，后面会再次安装cloudera-scm-agent，而且安装失败
+ 解决：rpm -qa|grep mariadb和rpm -e --nodeps mariadb-libs-5.5.56-2.el7.x86_64，卸载mariadb，然后reboot
+启动
+ systemctl start cloudera-scm-server
+ systemctl start cloudera-scm-agent
+
+ systemctl stop cloudera-scm-server
+ systemctl stop cloudera-scm-agent
+CDH管理界面
+  http://10.1.12.140:7180
+
+hdfs没有format
+  解决：hdfs namenode -format
+
+遇到问题：
+    Permission denied: user=mapred, access=WRITE, inode="/":hdfs:supergroup:drwxr-xr-x
+解决
+    sudo -u hdfs hdfs dfs -chmod 775 /
+    sudo -u hdfs hdfs dfs -mkdir /user
+    sudo -u hdfs hdfs dfs -chown mapred:mapred /user
+    sudo -u hdfs hdfs dfs -mkdir /tmp
+    sudo -u hdfs hdfs dfs -chown mapred:mapred /tmp
+
+遇到问题：
+   未连接到host MOnitor
+解决：
+   需要安装 Cloudera Management Service ，监控服务
+
+impala使用
+    impala-shell 连接到本地impala
+整合kudu
+    内部表：impala和kudu都创建一张表，并且impala删除表，kudu也会删除
+    CREATE TABLE `data_hero1` (
+      `id` bigint,
+      `gameType` SMALLINT,
+      `heroId` INTEGER,
+      `winCnt` INTEGER,
+      `totalCnt` INTEGER,
+      `winRate` decimal,
+      `gameCnt` INTEGER,
+      `gameTotalCnt` INTEGER,
+      `gameRate` decimal,
+      `createTime` timestamp,
+      PRIMARY KEY (`id`)
+    )
+    PARTITION BY HASH PARTITIONS 16
+    STORED AS KUDU;
+    注：kudu里的表名是impala::default.data_hero
+
+    外部表：Impala创建的与kudu已有表的映射,impala删除表，kudu的表不受影响
+    CREATE EXTERNAL TABLE `data_hero` STORED AS KUDU
+    TBLPROPERTIES(
+    'kudu.table_name' = 'data_hero',
+    'kudu.master_addresses' = 'hadoop002:7051');
+
+oozie管理地址
+  http://hadoop002:11000/oozie/

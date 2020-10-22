@@ -44,6 +44,11 @@ maven:
 								1.该类是一个配置类	
 								2.加了@Configuration注解的类，会自动纳入Spring 容器  （@Component）
 
+当需要在springboot中引用其他的yml（application-druid.yml）文件时，需要在application.yml里配置
+spring:
+    profiles:
+        include: druid
+
 @Configuration
 public class A//表示A是一个 用于 配置的类
 {

@@ -54,7 +54,24 @@ public class TestClass {
 //        testConcurrentHashMap();
 //        System.out.println("邓新龙邓新龙邓新龙邓新龙".length());
 //        sort();
-        testTreeMap();
+//        testTreeMap();
+//        setStatus(1,true,1);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(1600762996182L);
+        System.out.println(calendar.getTime());
+    }
+
+    /**
+     * 设置某一位的值为0或者1
+     * @return
+     */
+    public static void setStatus(int status ,boolean flag, int index) {
+        if (flag) {
+            status = status | (0x1 << index);
+        } else {
+            status = status & (~(0x1 << index));
+        }
+        System.out.println("status = "+status);
     }
     /**
      * 中文、英文、数字、下划线、[]、-

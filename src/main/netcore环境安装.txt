@@ -1,0 +1,26 @@
+1、安装
+  https://docs.microsoft.com/zh-cn/dotnet/core/install/linux
+  1、将 Microsoft 包签名密钥添加到受信任密钥列表，并添加 Microsoft 包存储库
+   sudo rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
+  2、安装 SDK
+   sudo yum install dotnet-sdk-3.1
+  3、安装运行时
+   sudo yum install dotnet-runtime-3.1
+  4、命令查看安装了哪些版本
+   dotnet --list-sdks 和 dotnet --list-runtimes 
+
+2、nuget使用
+  类似maven，一个包管理器。
+  Install-Package xxxx
+
+4、打包
+   cd到项目根目录（csproj文件所在目录）
+   dotnet publish --runtime linux-x64
+
+5、运行程序
+  dotnet xxxx.dll
+运行程序报错：
+Failed to load , error: libunwind.so.8: cannot open shared object file: No such file or directory
+Failed to bind to CoreCLR at '/game/testMono/Echoserver/linux-x64/libcoreclr.so'
+解决：
+   yum install libunwind
