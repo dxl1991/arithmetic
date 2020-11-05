@@ -44,7 +44,7 @@ public class CreateTable {
 
         /*
          *和RDBMS不同的是，Kudu不提供自动递增列功能，因此应用程序必须始终
-         * 在插入期间提供完整的主键
+         * 在插入期间提供完整的主键,并且主键要放前面
          */
         columns.add(newColumn("id", Type.INT64,true));
         columns.add(newColumn("gameType",Type.INT8,false));
@@ -69,7 +69,7 @@ public class CreateTable {
         //设置表的备份数
         options.setNumReplicas(1);
 
-        //设置hash分区和数量
+        //设置hash分区和数量，如果没有设置范围分区，则会默认有一个无边界的范围分区
         options.addHashPartitions(parcols,3);
 
         try {

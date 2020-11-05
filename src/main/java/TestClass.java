@@ -56,9 +56,12 @@ public class TestClass {
 //        sort();
 //        testTreeMap();
 //        setStatus(1,true,1);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(1600762996182L);
-        System.out.println(calendar.getTime());
+        String a = "dddddd1";
+        String b = "100";
+        Integer c = 100;
+        System.out.println(a.hashCode());
+        System.out.println(b.hashCode());
+        System.out.println(c.hashCode());
     }
 
     /**

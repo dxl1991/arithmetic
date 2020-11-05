@@ -1,4 +1,4 @@
-
+重启mysql: service mysqld restart
 Linux安装软件：rpm -ivh 软件名.rpm
 Linux卸载软件：yun -y remove xxx
 mysqld是MySQL服务器，mysql是客户端。可以用mysql连任何mysqld
@@ -259,15 +259,51 @@ windows安装mysql：如果已经安装过，需先卸载mysql，再安装
   　　3、增量数据备份及恢复
 
   配置：windows :my.ini文件
-        linux :mys.cnf文件
+        linux :/etc/my.cnf文件
         关闭防火墙:service iptables stop
         远程访问授权：grant 命令
   每次进行主从同步前，需要观察master的最新状态 show master status;
           （mysql-bin.000001、107）--->当前binary log的文件名、位置(slave配置需要)
 
-  开启主从同步
+mysql5.7开启主从同步
+1、编辑主库配置/etc/my.cnf,增加配置，重启mysql
+  log-bin=mysql-bin
+  server-id=1
+  innodb-file-per-table=ON
+  skip_name_resolve=ON
+  binlog-ignore-db=mysql  #不需要同步的数据库
+  binlog-ignore-db=information_schema
+  binlog-ignore-db=sys
+  binlog-ignore-db=performance_schema
+  binlog-do-db=ssjf_game
+  binlog-do-db=ds0
+  binlog-do-db=ds1
+2、赋予从库权限
+  grant FILE on *.* to 'root'@'10.1.12.213' identified by 'root';
+  grant replication slave on *.* to 'root'@'10.1.12.213' identified by 'root';
+  flush privileges;
+  show master status;
+2、编辑从库配置/etc/my.cnf,增加配置，重启mysql
+  server-id=2
+3、增加复制内容
+ CHANGE MASTER TO MASTER_HOST='10.1.12.196',
+ MASTER_PORT=3306,
+ MASTER_USER='root',
+ MASTER_PASSWORD='root',
+ MASTER_LOG_FILE='mysql-bin.000004', # 主库信息
+ MASTER_LOG_POS=1002;
+5、开启主从同步
   start slave:
   show slave status \G  查看释放开启同步，Slave_IO_Running 和 Slave_SQL_Running 要是yes
+
+主从同步延迟表现
+    1、 show slave status显示参数Seconds_Behind_Master不为0，这个数值可能会很大
+    2、 show slave status显示参数Relay_Master_Log_File和Master_Log_File显示bin-log的编号相差很大，说明bin-log在从库上没有及时同步，所以近期执行的bin-log和当前IO线程所读的bin-log相差很大
+    3、 mysql的从库数据目录下存在大量mysql-relay-log日志，该日志同步完成之后就会被系统自动删除，存在大量日志，说明主从同步延迟很厉害
+解决：
+  1、sync_binlog在slave端设置为0（表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新）
+  2、slave端，如果使用的存储引擎是innodb，innodb_flush_log_at_trx_commit =2
+  3、直接禁用slave端的binlog
 
 分库分表
    当单表数据行数达到500万行，推荐分表
@@ -289,7 +325,7 @@ windows安装mysql：如果已经安装过，需先卸载mysql，再安装
        1、翻页查询
        2、全局id
    第三方解决方案：
-       1、sharding JDBC ---> 动态选择数据库
+       1、shardingSphere JDBC ---> 动态选择数据库
           绑定表：两张表同字段使用同一个分片算法，并且绑定
           广播表：每个库都插入相同数据
           动态表：实际表名是逻辑表名+动态字符拼接
@@ -325,3 +361,31 @@ InnoDB的 MVCC ，是通过在每行记录的后面保存两个隐藏的列来�
 如果应用中需要执行大量的INSERT或UPDATE操作，则应该使度用InnoDB，这样可以提高多用户并发操作的性能
 
 mysql中有utf8和utf8mb4两种编码，在mysql中请大家忘记**utf8**，永远使用**utf8mb4**。这是mysql的一个遗留问题，mysql中的utf8最多只能支持3bytes长度的字符编码，对于一些需要占据4bytes的文字，mysql的utf8就不支持了，要使用utf8mb4才行
+
+sharding-scaling数据迁移
+1、启动sharding-scaling服务
+2、启动sharding-proxy服务(连接目标数据源)
+3、调用接口
+curl -X POST --url http://localhost:8888/shardingscaling/job/start \
+--header 'content-type: application/json' \
+--data '{
+   "ruleConfiguration": {
+      "sourceDatasource": "ds_0: !!org.apache.shardingsphere.orchestration.core.configuration.YamlDataSourceConfiguration\n  dataSourceClassName: com.zaxxer.hikari.HikariDataSource\n  properties:\n    jdbcUrl: jdbc:mysql://127.0.0.1:3306/ssjf_game?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=false&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false\n    driverClassName: com.mysql.jdbc.Driver\n    username: root\n    password: Dianchu123!\n    connectionTimeout: 30000\n    idleTimeout: 60000\n    maxLifetime: 1800000\n    maxPoolSize: 100\n    minPoolSize: 10\n    maintenanceIntervalMilliseconds: 30000\n    readOnly: false\n",
+      "sourceRule": "tables:\n  u_expression:\n    actualDataNodes: ds_0.u_expression\n",
+      "destinationDataSources": {
+         "name": "ds_0",
+         "password": "root",
+         "url": "jdbc:mysql://10.1.11.21:3307/sharding_db?serverTimezone=UTC&useSSL=false&tinyInt1isBit=false",
+         "username": "root"
+      }
+   },
+   "jobConfiguration": {
+      "concurrency": 1
+   }
+}'
+
+mysql tinyint类型变Boolean类型问题：
+  如果tinyInt1isBit=true（默认），且tinyInt存储长度为1，则转为java.lang.Boolean，否则转为java.lang.Integer
+解决：
+  1、避免使用长度为 1 的 tinyint 类型字段存储数字格式的数据，tinyInt(1) 只用来代表Boolean含义的字段，可以tinyint(2)
+  2、JDBC的URL增加 tinyInt1isBit=false参数，注意参数名区分大小写，否则不生效

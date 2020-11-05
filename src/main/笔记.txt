@@ -132,6 +132,9 @@ jvm参数分类：
   2、-X开头，
   3、-XX开头，下个版本可能取消
 
+查看对象个数：jmap -histo:live pid | more
+dump内存：jmap -dump:file=a.dump pid
+查看堆概要：jmap -heap pid
 
 netty两个线程池作用
   一个负责接受客户端的TCP连接
@@ -614,7 +617,7 @@ Netty的对拆包粘包问题的处理
       5. 列出所有可安裝的软件清单命令：yum list
       6. 删除软件包命令：yum remove <package_name>
       7. 查找软件包命令：yum search <keyword>
-      8. 清除缓存命令:
+      8. 清除缓存命令:whic
           yum clean packages: 清除缓存目录下的软件包
           yum clean headers: 清除缓存目录下的 headers
           yum clean oldheaders: 清除缓存目录下旧的 headers
@@ -691,3 +694,4 @@ Linux链接
        所谓的TCC编程模式，也是两阶段提交的一个变种。TCC提供了一个编程框架，将整个业务逻辑分为三块：Try、Confirm和Cancel三个操作。
        以在线下单为例，Try阶段会去扣库存，Confirm阶段则是去更新订单状态，如果更新订单失败，则进入Cancel阶段，会去恢复库存。
        总之，TCC就是通过代码人为实现了两阶段提交，不同的业务场景所写的代码都不一样，复杂度也不一样，因此，这种模式并不能很好地被复用
+    seata:阿里开源的分布式事务框架

@@ -1,0 +1,62 @@
+dataSources:
+  ds0: !!com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.1.12.196:3306/ds0?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: Dianchu123!
+  ds0_slave: !!com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.1.12.213:3306/ds0?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: root
+  ds1: !!com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.1.12.196:3306/ds1?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: Dianchu123!
+  ds1_slave: !!com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.1.12.213:3306/ds1?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: root
+
+shardingRule:
+  tables:
+    t_order:
+      actualDataNodes: ms_ds${0..1}.t_order${0..1}
+      databaseStrategy:
+        inline:
+          shardingColumn: user_id
+          algorithmExpression: ms_ds${user_id % 2}
+      tableStrategy:
+        inline:
+          shardingColumn: order_id
+          algorithmExpression: t_order${order_id % 2}
+    t_order_item:
+      actualDataNodes: ms_ds${0..1}.t_order_item${0..1}
+      databaseStrategy:
+        inline:
+          shardingColumn: user_id
+          algorithmExpression: ms_ds${user_id % 2}
+      tableStrategy:
+        inline:
+          shardingColumn: order_id
+          algorithmExpression: t_order_item${order_id % 2}
+
+  defaultDataSourceName: ds0 #没有配置分片规则的表就路由到这个库
+  defaultTableStrategy:
+    none:
+  masterSlaveRules:
+    ms_ds0:
+      masterDataSourceName: ds0
+      slaveDataSourceNames:
+        - ds0_slave
+      loadBalanceAlgorithmType: ROUND_ROBIN
+    ms_ds1:
+      masterDataSourceName: ds1
+      slaveDataSourceNames:
+        - ds1_slave
+      loadBalanceAlgorithmType: ROUND_ROBIN
+props:
+  sql.show: true
+  executor.size: 4
