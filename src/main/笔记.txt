@@ -429,6 +429,14 @@ https步骤：
   7.然后服务器将加密后的密文发送给客户端。
   8.客户端收到服务器发送来的密文，用客户端密钥对其进行对称解密，得到服务器发送的数据。这样HTTPS中的第二个HTTP请求结束，整个HTTPS传输完成。
 非对称加密算法效率比对称加密算法慢很多
+对称加密算法：
+  DES（Data Encryption Standard）：数据加密标准，速度较快，适用于加密大量数据的场合。
+  3DES（Triple DES）：是基于DES，对一块数据用三个不同的密钥进行三次加密，强度更高。
+  AES（Advanced Encryption Standard）：高级加密标准，是下一代的加密算法标准，速度快，安全级别高
+非对称加密算法：
+  RSA：由 RSA 公司发明，是一个支持变长密钥的公共密钥算法，需要加密的文件块的长度也是可变的；
+  DSA（Digital Signature Algorithm）：数字签名算法，是一种标准的 DSS（数字签名标准）；
+  ECC（Elliptic Curves Cryptography）：椭圆曲线密码编码学。
 
 正向代理代理的对象是客户端，反向代理代理的对象是服务端
 keepalive + nginx 实现nginx的高可用，对外提供一个虚拟ip，然后配置主从nginx
@@ -653,7 +661,6 @@ Netty的对拆包粘包问题的处理
         2）make对源代码进行编译；
         3）make install 将生成的可执行文件安装到当前计算机中
 
-全局查找check.sh文件：find / -name check.sh
 Telnet服务的配置步骤如下:
 
 安装telnet软件包(通常要两个）
@@ -662,11 +669,58 @@ Telnet服务的配置步骤如下:
 Linux链接
   1、实体链接 hard link
     ln 来源文件 目标文件
-    类似创建一个引用，两个文件名指向同一个文件，不会产生新的磁盘空间。不能对文件夹使用，不能跨文件系统。
+    类似创建一个引用，两个文件名指向同一个文件，不会产生新的磁盘空间，删除任何一个对另一个无影响。不能对文件夹使用，不能跨文件系统。
   2、符号链接 symbolic link
     ln -s 来源文件 目标文件
     创建一个新文件，指向源文件，文件名后会跟一个->符号，指向源文件。源文件删除，目标就会打不开。类似windows的快捷方式
 新的目录的link数为2，而上层目录的link数则会增加 1
+
+export xxx 来使变量xxx变成环境变量。例：export myName (将myName变量设置为环境变量，其他子程序也能通过$myName访问)
+env/export 查看所有环境变量
+source FileName 在当前bash环境下读取并执行FileName中的命令。例：source /etc/profile 重新设置环境变量
+sh fileName 重新建立一个子shell，在子shell中执行脚本里面的语句，该子shell继承父shell的环境变量，但子shell新建的、改变的变量不会被带回父shell，除非使用export
+./fileName 和sh fileName一样，”.”是用来表示当前目录的
+> 将标准输出覆盖写入指定文件
+>> 将标准输出追加写入指定文件
+2> 将标准错误输出覆盖写入指定文件
+2>> 将标准错误输出追加写入指定文件
+> a.txt 2>&1 将标准输出和错误输出都写入a.txt文件
+/dev/null 黑洞文件，写入的数据被丢弃
+cmd;cmd 连续下达指令
+cmd1&&cmd2 cmd1执行完毕并正确，则继续执行cmd2
+cmd1||cmd2 cmd1执行完毕并错误，则继续执行cmd2
+cat a.txt | wc 统计a.txt有多少行、字数、字符数
+grep 'the' a.txt 查找a.txt中包含the的行
+grep '^the' a.txt 查找a.txt中以the开头的行
+grep 'the$' a.txt 查找a.txt中以the结尾的行
+find / -name check.sh 全局查找check.sh文件
+alias psf='ps -ef|grep' 指令设置别名
+永久生效
+  vim /root/.bashrc
+  source /root/.bashrc
+test -e fileName  判断文件fileName是否存在
+AWK 是一种处理文本文件的语言，是一个强大的文本分析工具
+
+Linux修改最大文件打开数
+  ulimit -a 查看当前用户可使用系统资源的一些参数，包括可打开的最大文件数量
+  ulimit -n 直接查看当前进程可以打开文件的最大数量
+  ulimit -a 65535 可以修改最大文件数量，但是只限于当前shell环境
+  单进程
+    echo "* soft nofile 65535" >> /etc/security/limits.conf
+    echo "* hard nofile 65535" >> /etc/security/limits.conf
+  整个系统
+    修改/etc/sysctl.conf，增加fs.file-max=35942900
+
+  注意：退出当前shell就可以看到修改生效
+
+tar -czvf admin.tar.gz admin admin_client --exclude='admin/logs'  打包并压缩admin文件夹、admin_client文件夹到admin.tar.gz，并且排除admin/logs文件夹
+tar -xzvf admin.tar.gz 解压admin.tar.gz
+iftop -N -n -i eth0 监控流量
+
+df -h 查看磁盘空间
+du -sh * |grep G  查看当前目录下占用磁盘空间1G以上的文件夹
+
+netstat -lnp |grep pid  查看某个进程占用的端口号
 
 分布式事物：
   定义：分布式事务就是为了保证不同数据库的数据一致性
