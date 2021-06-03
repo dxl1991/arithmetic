@@ -200,7 +200,7 @@ sql性能优化：
       set global general_log_file = '/tmp/general.log'; 设置记录的文件路径
 
 锁：
-  查看加加锁的表：show open tables;
+  查看加锁的表：show open tables;
   加锁：lock table table_name1 read/write , table_name2 read/write , ....;
   释放锁：unlock tables;
   ---------表锁-----------

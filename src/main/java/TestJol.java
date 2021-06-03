@@ -6,12 +6,12 @@ import java.util.HashMap;
  * @Author dengxinlong
  * @Date 2020/5/9 21:00
  * @slogan CODE IS TRUTH
- *  对象头固定12字节，对象地址4字节，如果总大小不能被8整除，就要补齐字节数
+ *  对象头占固定12字节;对象地址占4字节;如果对象总大小不能被8整除，就要补齐字节数
  */
 public class TestJol {
     public static void main(String[] args) {
         Node node = new Node();
-        System.out.println(ClassLayout.parseInstance(node).toPrintable());
+        System.out.println(ClassLayout.parseInstance(node).toPrintable());//打印对象内存结构
     }
 
     private static class Node {

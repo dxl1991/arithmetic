@@ -1,0 +1,102 @@
+nexus搭建maven私有仓库
+  https://www.jianshu.com/p/1cfbc1518fce
+  1、hosted（宿主仓库库） ：存放本公司开发的jar包（正式版本、测试版本）
+  2、proxy（代理仓库）：代理中央仓库、Apache下测试版本的jar包
+  3、group（组仓库）：使用时连接组仓库，包含Hosted（宿主仓库）和Proxy（代理仓库），本地配置用这个仓库地址
+
+maven mirrors简介：
+    mirrors 相当于一个拦截器，它会拦截maven对remote repository的相关请求，把请求里的remote repository地址，重定向到mirror里配置的地址。mirrorOf 填写的是repostoryId
+    mirrors 可以配置多个子节点，但是它只会使用其中的一个节点，即 默认情况下配置多个 mirror 的情况下，只有第一个生效，只有当前一个 mirror 无法连接的时候，才会去找后一个
+    https://blog.csdn.net/zalu9810/article/details/107352586/
+配置例子：
+    <mirrorOf>central</mirrorOf>
+    例如central就表示代替官方的中央库
+    <mirrorOf>*</mirrorOf>
+    匹配所有仓库请求，即将所有的仓库请求都转到该镜像上
+    <mirrorOf>repo1,repo2</mirrorOf>
+    将仓库repo1和repo2的请求转到该镜像上，使用逗号分隔多个远程仓库。
+    <mirrorOf>*,!repo1</miiroOf>
+    匹配所有仓库请求，repo1除外，使用感叹号将仓库从匹配中排除。
+
+maven profile简介：
+    profile可以让我们定义一系列的配置信息，然后指定其激活条件。这样我们就可以定义多个profile，然后每个profile对应不同的激活条件和配置信息，从而达到不同环境使用不同配置信息的效果
+    可以定义在pom.xml里也可以定义在settings.xml里
+    https://www.cnblogs.com/0201zcr/p/6262762.html
+
+maven打包插件：
+    1、将依赖jar打包到指定文件夹
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <executions>
+                      <execution>
+                          <id>copy</id>
+                          <phase>package</phase>
+                          <goals>
+                              <goal>copy-dependencies</goal>
+                          </goals>
+                          <configuration>
+                               <!-- target/lib 目录 -->
+                              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                          </configuration>
+                      </execution>
+                  </executions>
+              </plugin>
+    2、将指定文件复制到指定目录
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <executions>
+                        <execution>
+                            <id>copy-resources</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>ssjf/jar</directory>
+                                        <filtering>false</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+     3、利用assembly文件组织包结构
+                 <plugin>
+                     <artifactId>maven-assembly-plugin</artifactId>
+                     <version>2.6</version>
+                     <executions>
+                         <execution>
+                             <phase>package</phase>
+                             <goals>
+                                 <goal>single</goal>
+                             </goals>
+                         </execution>
+                     </executions>
+                     <configuration>
+                         <descriptors>
+                             <descriptor>assembly.xml</descriptor>
+                         </descriptors>
+                     </configuration>
+                 </plugin>
+     4、将依赖打入一个整jar
+           <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                  <!-- put your configurations here -->
+                </configuration>
+                <executions>
+                  <execution>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>shade</goal>
+                    </goals>
+                  </execution>
+                </executions>
+           </plugin>

@@ -5,7 +5,7 @@
  * 这个例子中，在server模式下，线程永远也停不下来
  */
 public class VisibilityTest extends Thread {
-    private boolean stop;
+    private boolean stop; //使用volatile可以使线程停下来
 
     public void run() {
         int i = 0;

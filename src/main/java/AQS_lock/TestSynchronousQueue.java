@@ -17,7 +17,7 @@ public class TestSynchronousQueue {
         new Thread(()->{
             try {
                 Thread.sleep(1000);
-                queue.put("hello");//会put方法一定会阻塞线程，等别的线程取出元素被唤醒
+                queue.put("hello");//put方法一定会阻塞线程，等别的线程取出元素被唤醒
                 System.out.println("hello程被唤醒");
             } catch (InterruptedException e) {
                 e.printStackTrace();

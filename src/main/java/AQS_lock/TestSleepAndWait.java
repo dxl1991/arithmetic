@@ -16,6 +16,7 @@ public class TestSleepAndWait {
                 try {
                     System.out.println("线程拿到锁");
                     Thread.sleep(3000);
+                    System.out.println("线程休息完毕");
                     o.wait(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -24,6 +25,7 @@ public class TestSleepAndWait {
             }
         }).start();
         Thread.sleep(1000);
+        System.out.println("主线程休息完毕");
         synchronized (o) {
             System.out.println("主线程获得锁");
             o.notify();

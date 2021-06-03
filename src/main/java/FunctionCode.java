@@ -7,7 +7,7 @@ import java.util.function.Supplier;
  * @author dengxinlong
  * @date 2020/6/15 15:10
  * @version 1.0
- * 四大核心函数式接口Function、Consumer、Supplier、Predicate
+ * 四大核心函数式接口：Function、Consumer、Supplier、Predicate
  * @FunctionalInterface 都被该注解修饰，代表是函数式接口
  */
 public class FunctionCode {
