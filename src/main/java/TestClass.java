@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -68,21 +69,58 @@ public class TestClass {
         //System.out.println(pivotIndex(new int[]{1, 2, 3}));
         //System.out.println(searchInsert(new int[]{1,3,5,6},7));
         //merge(new int[][]{{1,3},{2,6},{8,10},{15,18}});
+        System.out.println(hammingWeight(00001011));
     }
 
-    public static int removeDuplicates(int[] nums) {
-        int newCount = nums.length;
-        for(int i=0;i<nums.length;i++){
-            int j=i+1;
-            while (j < nums.length && nums[j] == nums[i]){
-                j++;
+    public static int hammingWeight(int n) {
+        int j =1;
+        int res=0;
+        for(int i=0;i<32;i++){
+            if((n & j) != 0){
+                res++;
             }
-            if(j > i+1){
-                nums[i+1] = nums[j];
-                newCount -= (j - i - 1);
+            j = j <<1;
+        }
+        return res;
+    }
+
+    public static boolean isValid(String s) {
+        int n = s.length();
+        if (n % 2 == 1) {
+            return false;
+        }
+        Stack<Character> sets = new Stack<>();
+        for(int i=0;i<s.length();i++){
+            char c = s.charAt(i);
+            if(c == '(' || c == '[' || c == '{'){
+                sets.push(c);
+            }else{
+                if(sets.isEmpty()){
+                    return false;
+                }
+                char temp = sets.pop();
+                switch (c){
+                    case ')':
+                        if(temp != '('){
+                            return false;
+                        }
+                        break;
+                    case ']':
+                        if(temp != '['){
+                            return false;
+                        }
+                        break;
+                    case '}':
+                        if(temp != '{'){
+                            return false;
+                        }
+                        break;
+                    default:
+                        return false;
+                }
             }
         }
-        return newCount;
+        return sets.isEmpty();
     }
 
     //区间合并

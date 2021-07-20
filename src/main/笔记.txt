@@ -511,7 +511,8 @@ protobuf编码方式：
 
 git换行符问题，文件一致却提示有修改
 解决方法：
-git config --global core.autocrlf input
+git config --global core.autocrlf false  #提交检出均不转换
+git config --global core.safecrlf true   #拒绝提交包含混合换行符的文件
 check out代码时，换行符会自动由LF转换为CRLF，而在commit时，Git也会将CRLF转换为LF，以方便在Windows上开发
 
 linux root 目录下没有.ssh目录
@@ -534,6 +535,7 @@ git merge --continue 解决完冲突后继续完成合并
 git reset --hard dca15df 回退到某一次提交  ，再用git push -f 强推到远端
 git checkout .  撤销对所有已修改但未提交的文件的修改，但不包括新增的文件
 git checkout [filename]    撤销对指定文件的修改，[filename]为文件名
+git cherry-pick 82ecb31 在当前分支合并82ecb31记录（git不同分支的每一次提交id都是唯一，所以可以用这个方法合并其他分支的某一次提交到当前分支）
 
 zookeeper分布式锁：
    1、创建父节点（容器节点lock）
