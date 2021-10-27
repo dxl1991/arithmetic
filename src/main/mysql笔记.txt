@@ -342,7 +342,7 @@ mybatis generator 工具可以生成mapper代码
     提交读(Read Committed)：只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)。
     可重复读(Repeated Read)：可重复读。无论其他事务是否修改并提交了数据，在这个事务中看到的数据值始终不受其他事务影响。
     串行读(Serializable)：完全串行化的读，每次读都需要获得表级共享锁，读写相互都会阻塞
-    MySQL数据库(InnoDB引擎)默认使用可重复读（ Repeatable read)
+    MySQL数据库(InnoDB引擎)默认使用可重复读(Repeatable read)
 读的一致性问题
     脏读：读到了其他事务未提交的数据
     不可重复读：后一次读到了其他事务update、delete的数据

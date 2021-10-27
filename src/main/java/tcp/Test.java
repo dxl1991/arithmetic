@@ -9,13 +9,15 @@ import io.netty.channel.Channel;
  */
 public class Test {
     public static void main(String[] args)  throws Exception{
-        NettyClient client = new NettyClient("127.0.0.1",6688);
-        client.start();
-        Channel channel = client.getChannel();
-        short code = 123;
-        long userId = 123123123;
-        PBMessage msg = new PBMessage(code,userId);
-        msg.setBytes("hello".getBytes());
-        channel.writeAndFlush(msg);
+        for(int i=0;i<10000;i++){
+            NettyClient client = new NettyClient("10.1.11.151",10000);
+            client.start();
+            Channel channel = client.getChannel();
+            short code = 123;
+            long userId = 123123123;
+            PBMessage msg = new PBMessage(code,userId);
+            msg.setBytes("hello".getBytes());
+            channel.writeAndFlush(msg);
+        }
     }
 }

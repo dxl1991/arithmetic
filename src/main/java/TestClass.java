@@ -1,11 +1,19 @@
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,7 +77,192 @@ public class TestClass {
         //System.out.println(pivotIndex(new int[]{1, 2, 3}));
         //System.out.println(searchInsert(new int[]{1,3,5,6},7));
         //merge(new int[][]{{1,3},{2,6},{8,10},{15,18}});
-        System.out.println(hammingWeight(00001011));
+        //System.out.println(hammingWeight(00001011));
+        long begin = System.nanoTime();
+        System.out.println(System.nanoTime() - begin);
+    }
+
+    public static int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] <= 0) {
+                nums[i] = n + 1;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            int num = Math.abs(nums[i]);
+            if (num <= n) {
+                nums[num - 1] = -Math.abs(nums[num - 1]);
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] > 0) {
+                return i + 1;
+            }
+        }
+        return n + 1;
+    }
+
+    public static String countAndSay(int n) {
+        String oldStr = "1";
+        String str = "";
+        for(int i=1;i<n;i++){
+            int m = 0;
+            char c = oldStr.charAt(0);
+            for(int j=0;j<oldStr.length();j++){
+                char k = oldStr.charAt(j);
+                if(k != c){
+                    str += m + "" + c;
+                    m = 0;
+                }
+                m++;
+                c = k;
+            }
+            str += m + "" + c;
+            oldStr = str;
+            str = "";
+        }
+        return oldStr;
+    }
+
+    public static List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        List<List<Integer>> res = new ArrayList<>();
+        for(int i=0;i<candidates.length;i++){
+            if(candidates[i] > target){
+                continue;
+            }
+            List<Integer> list = new ArrayList<>();
+            list.add(candidates[i]);
+            int temp = candidates[i];
+            while (temp <= target){
+                if(temp == target){
+                    res.add(list);
+                    break;
+                }
+                for(int j=0;j<candidates.length;j++){
+                    List<Integer> list1 = new ArrayList<>(list);
+                    int temp1 = temp;
+                    if(i == j){
+                        continue;
+                    }
+                    temp1 += candidates[j];
+                    if(temp1 > target){
+                        break;
+                    }
+                    list1.add(candidates[j]);
+                    if(temp1 == target){
+                        res.add(list1);
+                        break;
+                    }
+                }
+                temp += candidates[i];
+                list.add(candidates[i]);
+            }
+        }
+        return res;
+    }
+    public static int totalMoney(int n) {
+        int sum = 0;
+        int week = (n - 1) / 7 + 1;
+        int day = n % 7;
+        for(int i = 1;i<=week;i++){
+            int m = i == week ? day : 7;
+            for(int j=1;j<=m;j++){
+                sum += j + i - 1;
+            }
+        }
+        return sum;
+    }
+    public static int divide(int dividend, int divisor) {
+        long absDividend = dividend;
+        absDividend = Math.abs(absDividend);
+        long absDivisor = divisor;
+        absDivisor = Math.abs(absDivisor);
+        long count = 0;
+        long number = 0;
+        while (true){
+            number += absDivisor;
+            if(number > absDividend){
+                break;
+            }
+            count++;
+        }
+        if(count == 0){
+            return 0;
+        }
+        if(count > Integer.MAX_VALUE){
+            return Integer.MAX_VALUE;
+        }
+        if(dividend > 0 && divisor < 0 || dividend < 0 && divisor > 0){
+            return -(int)count;
+        }
+        return (int)count;
+    }
+
+    static class Vec2{
+        float x;
+        float y;
+        Vec2(float x,float y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    public static float threePointAngle(Vec2 cen, Vec2 first,Vec2 second){
+        float dx1, dx2, dy1, dy2;
+        float angle;
+
+        dx1 = first.x - cen.x;
+        dy1 = first.y - cen.y;
+
+        dx2 = second.x - cen.x;
+        dy2 = second.y - cen.y;
+
+        float c = (float) (Math.sqrt(dx1 * dx1 + dy1 * dy1) * Math.sqrt(dx2 * dx2 + dy2 * dy2));
+
+        if (c == 0) return -1;
+
+        angle = (float)Math.acos((dx1 * dx2 + dy1 * dy2) / c);
+        return angle;
+    }
+
+    public static int strStr(String haystack, String needle) {
+        for(int i=0;i<haystack.length();i++){
+            int p = 0;
+            for(p = 0;p<needle.length();p++){
+                if(needle.charAt(p) != haystack.charAt(p+i)){
+                    break;
+                }
+            }
+            if(p == needle.length()){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int reverse(int x) {
+        int rev = 0;
+        while (x != 0) {
+            if (rev < Integer.MIN_VALUE / 10 || rev > Integer.MAX_VALUE / 10) {
+                return 0;
+            }
+            int digit = x % 10;
+            x /= 10;
+            rev = rev * 10 + digit;
+        }
+        return rev;
+    }
+
+    public static int[] plusOne(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            digits[i] = ++digits[i] % 10;
+            if (digits[i] != 0) return digits;
+        }
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
     }
 
     public static int hammingWeight(int n) {

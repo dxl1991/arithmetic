@@ -35,7 +35,7 @@ public class FunctionCode {
         consumer.accept(1);
 
         consumer = consumer.andThen(p -> System.out.println(p+1));
-        consumer.accept(1);
+        consumer.accept(2);
     }
     /**
      * 提供一个结果
