@@ -1,7 +1,12 @@
 import java.nio.ByteBuffer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.SimpleFormatter;
+import java.util.regex.Pattern;
 
 /**
  * @Author dengxinlong
@@ -37,7 +45,7 @@ public class TestClass {
         System.out.println("cccccccc");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         //        new TestClass();
         //        int count = 1000;
         //        int max = 100000;
@@ -78,8 +86,84 @@ public class TestClass {
         //System.out.println(searchInsert(new int[]{1,3,5,6},7));
         //merge(new int[][]{{1,3},{2,6},{8,10},{15,18}});
         //System.out.println(hammingWeight(00001011));
-        long begin = System.nanoTime();
-        System.out.println(System.nanoTime() - begin);
+        //testFor();
+       // testTimeZone();
+//        testCPU50Per();
+//        Map<String, String> content = new HashMap<>();
+//        content.put("zh","");
+//        System.out.println(content.values().iterator().next());
+        System.out.println(new HashMap<Integer, Integer>(){
+            {
+                put(2,2);
+            }
+        }); //相当于创建的是一个HashMap的子类对象(内部类)，且该子类中有实例代码块做一个初始化赋值操作
+
+        System.out.println(Pattern.matches("^(?!\\s)(?!.*\\s$)(?!.*\\s{2,}.*)[^.]{1,14}$", "顶顶 !顶顶 顶顶顶顶顶顶顶"));
+    }
+
+    public static void testTimeZone() throws ParseException {
+        // 获取 JVM 启动时获取的时区
+        TimeZone aDefault = TimeZone.getDefault();
+        System.out.println(TimeZone.getDefault());
+        System.out.println(ZoneId.systemDefault());
+        // 获取任意指定区域的时区
+        String[] zoneIDs = TimeZone.getAvailableIDs();
+        Set<Integer> sets = new HashSet<>();
+        for(String zoneID: zoneIDs) {
+            TimeZone timeZone = TimeZone.getTimeZone(zoneID);
+            System.out.println(timeZone);
+            sets.add(timeZone.getRawOffset());
+        }
+        System.out.println(sets);
+        System.out.println(sets.size());
+        Date date = new SimpleDateFormat("yyyy_MM_ddZ").parse("2021_12_2-1200");
+        System.out.println(date);
+    }
+
+    public static void rotate(int[][] matrix) {
+        int n = matrix.length;
+        for(int k=0;k<n - 1;k++){
+            int[] temp = new int[n - 2*k];
+            if(temp.length <= 1){
+                return;
+            }
+            int index = 0;
+            int jj = n - 1 - k;
+            int ii = k;
+            for(int m=n-1-k;m>=k;m--){
+                temp[index++] = matrix[m][jj];
+                matrix[m][jj] = matrix[ii][m];
+            }
+            jj = k;
+            ii = k;
+            for(int m=n-1-k;m>=k;m--){
+                matrix[ii][m] = matrix[n - 1 - m][jj];
+            }
+            jj = k;
+            ii = n - 1 - k;
+            for(int m=k;m<=n-1-k;m++){
+                matrix[m][jj] = matrix[ii][m];
+            }
+            ii = n - 1 - k;
+            for(int m=n-1-k;m>=k;m--){
+                matrix[ii][m] = temp[--index];
+            }
+        }
+    }
+
+    static class TempInt{
+        int i = 3;
+        int size(){
+            System.out.println("call size()");
+            return i;
+        }
+    }
+
+    public static void testFor(){
+        TempInt tempInt = new TempInt();
+        for(int i=0,length = tempInt.size();i<length;i++){
+            System.out.println("--------"+Double.MAX_VALUE);
+        }
     }
 
     public static int firstMissingPositive(int[] nums) {
@@ -752,8 +836,9 @@ public class TestClass {
     }
 
     private static void testCPU50Per() {
-        System.out.println(Runtime.getRuntime().availableProcessors());
-        for (int i = 0; i < 2; i++) {
+        int coreCount = Runtime.getRuntime().availableProcessors();
+        System.out.println("coreCount = "+coreCount);
+        for (int i = 0; i < coreCount; i++) {
             new Thread(() -> {
                 long time_start;
                 int fulltime = 100;

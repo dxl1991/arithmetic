@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
  * @author dxl
  * @slogan CODE IS TRUTH
  * @date 2020/4/14 18:20
- * Semaphore 是 synchronized 的加强版，作用是控制线程的并发数量
+ * Semaphore 是 synchronized 的加强版，作用是控制线程的并发数量，可用于秒杀系统
  */
 public class TestSemaphore {
     private Semaphore semaphore = new Semaphore(4,true);

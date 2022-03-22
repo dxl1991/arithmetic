@@ -13,6 +13,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  * @date 2021/8/25 10:11
  * websocket 与 HTTP 协议有着良好的兼容性，在请求头加了websocket内容
  * 浏览器输入http://localhost:8081/可以测试
+ * 浏览器通过GET方式发送Websocket请求，服务器通过判断其请求头部是否包含 “Upgrade: websocket”请求头来判断是否Websocket协议，如果存在这个请求头，则表示用Websocket协议来通信
+ * websocket数据是以帧(frame)形式传递
  *
  * （1）建立在 TCP 协议之上，服务器端的实现比较容易。
  * （2）与 HTTP 协议有着良好的兼容性。默认端口也是80和443，并且握手阶段采用 HTTP 协议，因此握手时不容易屏蔽，能通过各种 HTTP 代理服务器。
