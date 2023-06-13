@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -16,13 +18,12 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class Test {
 
     public static void main(String[] args) throws Exception{
-//        readFile();
-        Path dir = Paths.get("D:\\java");
-        listDirectory(dir);
-        Path startingDir = Paths.get("D:\\java");
-        List<Path> result = new LinkedList<>();
-        Files.walkFileTree(startingDir, new FindJavaVisitor(result));//会遍历目录下的所有目录
-        System.out.println("result.size()=" + result.size());
+        ArrayList<Integer> temp = new ArrayList<>();
+        temp.add(3);
+        temp.add(1);
+        temp.add(4);
+        temp.sort((e1, e2) -> Long.compare(e1, e2));
+        System.out.println(temp);
     }
 
     public static void readFile() throws IOException {

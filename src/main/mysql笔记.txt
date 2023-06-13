@@ -367,6 +367,20 @@ mysql中有utf8和utf8mb4两种编码，在mysql中请大家忘记**utf8**，永
     utf8mb4_general_ci：ci即case insensitive，不区分大小写。没有实现Unicode排序规则，在遇到某些特殊语言或者字符集，排序结果可能不一致。但是，在绝大多数情况下，这些特殊字符的顺序并不需要那么精确
     utf8mb4_unicode_ci：是基于标准的Unicode来排序和比较，能够在各种语言之间精确排序，Unicode排序规则为了能够处理特殊字符的情况，实现了略微复杂的排序算法
 
+查询mysql表名、库名、字段名是否敏感
+show global variables like '%lower_case%';
++------------------------+-------+
+| Variable_name          | Value |
++------------------------+-------+
+| lower_case_file_system | OFF   |
+| lower_case_table_names | 1     |
++------------------------+-------+
+lower_case_file_system，代表当前系统文件是否大小写敏感，只读参数，无法修改。ON 大小写不敏感，OFF 大小写敏感。
+lower_case_table_names，代表库表名是否大小写敏感，可以修改，参数有0、1、2三种。
+    0 大小写敏感。（Unix，Linux默认） 创建的库表将原样保存在磁盘上。如create database TeSt;将会创建一个TeSt的目录，create table AbCCC …将会原样生成AbCCC.frm文件，SQL语句也会原样解析。
+    1 大小写不敏感。（Windows默认） 创建的库表时，MySQL将所有的库表名转换成小写存储在磁盘上。 SQL语句同样会将库表名转换成小写。 如需要查询以前创建的Testtable（生成Testtable.frm文件），即便执行select * from Testtable，也会被转换成select * from testtable，致使报错表不存在。
+    2 大小写不敏感（OS X默认） 创建的库表将原样保存在磁盘上， 但SQL语句将库表名转换成小写
+
 sharding-scaling数据迁移
 1、启动sharding-scaling服务
 2、启动sharding-proxy服务(连接目标数据源)
@@ -418,3 +432,23 @@ case when用法：
     when salary > 3000 then 'high'
     when salary between 1000 and 3000 then 'middle'
     else 'low' end as salary_level from salary;
+
+json_extract用法
+    Mysql5.7版本提供提供函数json_extract，可以通过key查询value值，适用于存储json格式的字符串，或者json类型字段
+    JSON_EXTRACT(字段名,'$.key')
+    select json_extract(`data`,'$.name') from tab_json where json_extract(`data`,'$.age') > 30; //tab_json表的data字段为json格式的字符串，查询data字段里age>30的name
+
+sum()用法
+   1、直接求和
+   select sum(money) from user group by id; //money字段求和
+   2、按条件求和
+   select sum(if(type=1,money,0)) from user group by id; //只求type=1的money之和
+    SUM(IF(EXPR, column, 0))
+    SUM(IF(EXPR, 1, 0))
+count()用法：
+   count(*),count(1)和count(column)的区别。
+   它们三个的共同点在于：都能实现对表的行数进行计数统计；
+   在只对某一列数进行统计时，并且，如果该列的某些行的数据为NULL时，区别在于：
+   count(*)和count(1)会将其统计在内（空行也是行）；
+   count(column)不会将空行统计在内（只对有值的行进行计数）。
+   COUNT(IF(EXPR, 1, NULL)) ：如果满足表达式，该行此列的值就为1，最后进行count计数的时候+1；否则，该行此列的值将被设置成null，由于count的特性，所以，在最后计数的时候，将不会对其进行计数

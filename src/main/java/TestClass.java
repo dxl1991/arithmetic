@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class TestClass {
     private static TestA a = new TestA("aaaaaaaaa");
     private TestA b = new TestA("bbbbbbbbb");
-
+    public static final long RANK_SCORE_SALT = 10000000000L;
     TestClass() {
         System.out.println("cccccccc");
     }
@@ -92,13 +92,190 @@ public class TestClass {
 //        Map<String, String> content = new HashMap<>();
 //        content.put("zh","");
 //        System.out.println(content.values().iterator().next());
-        System.out.println(new HashMap<Integer, Integer>(){
-            {
-                put(2,2);
-            }
-        }); //相当于创建的是一个HashMap的子类对象(内部类)，且该子类中有实例代码块做一个初始化赋值操作
+//        int data = 0;
+//        int sum = 0;
+//        for(int i=0;i<100;i++){
+//            boolean win = new Random().nextBoolean();
+//            if(win && i >= 80){
+//                sum++;
+//            }
+//            data = setCount(data,win);
+//            //System.out.print("第"+i+"次"+win+",");
+//        }
+//        System.out.println(sum);
+//        getWin(data);
+        System.out.println(Long.MAX_VALUE);
+        System.out.println(920000000 * RANK_SCORE_SALT);
+    }
 
-        System.out.println(Pattern.matches("^(?!\\s)(?!.*\\s$)(?!.*\\s{2,}.*)[^.]{1,14}$", "顶顶 !顶顶 顶顶顶顶顶顶顶"));
+    static void testIntArray(Integer... data){
+        for(int a : data){
+            System.out.println(a);
+        }
+    }
+
+    static void groupDay(){
+        int battleAmount = 3;
+        int groupRules = 10;
+        List<Integer> guildList = new ArrayList<>();
+        guildList.add(1);
+//        guildList.add(2);
+//        guildList.add(3);
+//        guildList.add(4);
+//        guildList.add(5);
+//        guildList.add(6);
+//        guildList.add(7);
+//        guildList.add(8);
+        int size = guildList.size();
+        int maxGroupId = (size - 1) / (battleAmount) + 1;
+        int flagId = size - (battleAmount - 1) * maxGroupId;
+        for(int groupId=1;groupId<=maxGroupId;groupId++){
+            int count = groupId <= flagId ? battleAmount : battleAmount - 1;
+            for(int j=0;j<Math.min(count,size);j++){
+                int index = 0;
+                if(j > 0){
+                    int limit  = groupRules - j - 1;
+                    index = RandomUtil.randomValue(0,Math.min(limit,guildList.size() - 1));
+                }
+                int i = guildList.remove(index);
+                System.out.println(i+","+groupId);
+            }
+        }
+    }
+
+    static void groupWeek(){
+        int count = 32;
+        int guildCount = 9;
+        int battleCount = 3;
+        int maxGroupId = Math.max(count / guildCount,1);
+        int groupId = 1;
+        int remainGroupId = 1;
+        int groupCount = 0;
+        Map<Integer,Integer> groupMemberCount = new HashMap<>();
+        for(int i=1;i<=count;i++){
+            if(groupId <= maxGroupId){
+                int count1 = groupMemberCount.getOrDefault(groupId,0);
+                groupMemberCount.put(groupId, count1 + 1);
+                System.out.println(i+","+groupId);
+                if(++groupCount >= guildCount){
+                    groupId++;
+                    groupCount = 0;
+                }
+            }else{
+                int count1 = groupMemberCount.getOrDefault(remainGroupId,0);
+                groupMemberCount.put(remainGroupId, count1 + 1);
+                System.out.println(i+","+remainGroupId);
+                if(++groupCount >= battleCount){
+                    if(++remainGroupId > maxGroupId){
+                        remainGroupId = 1;
+                    }
+                    groupCount = 0;
+                }
+            }
+        }
+        int newCount = 5;
+        remainGroupId = 1;
+        groupCount = 0;
+        for(int i=1;i<=maxGroupId;i++){
+            groupCount = (groupMemberCount.get(i) - guildCount) % battleCount;
+            if(groupCount != 0){
+                remainGroupId = i;
+                break;
+            }
+        }
+        for(int i=1;i<=newCount;i++){
+            System.out.println(i+","+remainGroupId);
+            if(++groupCount >= battleCount){
+                if(++remainGroupId > maxGroupId){
+                    remainGroupId = 1;
+                }
+                groupCount = 0;
+            }
+        }
+    }
+
+    static String TenTransToN(long val, int radix){
+
+        long temp = val;
+        int len = 1; //目标进制的字符串长度
+        while(temp >= radix){
+            temp = temp/radix;
+            len++;
+        }
+
+        char[] buf = new char[len];
+        formatLong(buf, val, radix, len);
+
+        return new String(buf);
+    }
+
+    static void formatLong(char[] buf, long val, int radix, int len){
+        long temp;
+        long radixPow;
+        int charPos = len;
+        --len;
+        while(charPos != 0){
+            //Math.pow 方法某些数据较大时得不到正确的值。 如：Math.pow(15, 14) 结果的个位不是5. 见注释1
+            radixPow = (long) Math.pow(radix, --charPos);
+            temp = val;
+            if(val >= radixPow){
+                val = temp % radixPow;
+                buf[len - charPos] = digits[(int) (temp / radixPow)];
+            }else{
+                buf[len - charPos] = '0';
+            }
+        }
+    }
+
+    static char[] digits = {
+            '0' , '1' , '2' , '3' , '4' , '5' ,
+            '6' , '7' , '8' , '9' , 'a' , 'b' ,
+            'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,
+            'i' , 'j' , 'k' , 'l' , 'm' , 'n' ,
+            'o' , 'p' , 'q' , 'r' , 's' , 't' ,
+            'u' , 'v' , 'w' , 'x' , 'y' , 'z'
+    };
+    
+    private static void test1(int n){
+        double sum = 0;
+        for(int i=0;i<n;i++){
+            double b = Math.pow(0.92,i) * 0.08;
+            sum += b * (i+1);
+            System.out.println("第"+(i+1)+"次抽中的概率："+b);
+        }
+        System.out.println("期望："+sum);
+    }
+
+    private static int getCount(int data){
+        return data & 31;
+    }
+    private static int setCount(int data,boolean win){
+        int count = getCount(data);
+        count = Math.min(20,count + 1);
+        int data1 = data >>> 5;
+        data1 = data1 << 6;
+        if(win){
+            data1 |= 32;
+        }
+        return data1 | count;
+    }
+    private static void getWin(int data){
+        int count = getCount(data);
+        int sum = 0;
+        for(int i=count - 1;i>=0;i--){
+            int temp = 1 << (i+5);
+            boolean win = (data & temp) > 0;
+            if(win){
+                sum++;
+            }
+        }
+        System.out.println(sum);
+    }
+
+
+
+    public static int getRankType(int leagueId,int leagueLevel,int groupId){
+        return leagueId * 1000000 + leagueLevel * 100000 + groupId;
     }
 
     public static void testTimeZone() throws ParseException {

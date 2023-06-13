@@ -15,19 +15,19 @@ public class TestAtomicStampedReference {
     private static AtomicStampedReference<Integer> stampedRef = new AtomicStampedReference<>(10,1);
 
     public static void main(String[] args) {
+        int stamp = stampedRef.getStamp();
         new Thread(()->{
-            int stamp = stampedRef.getStamp();
             System.out.println(Thread.currentThread().getName() + "第一次版本号：" + stamp);
-            stampedRef.compareAndSet(10,11,stampedRef.getStamp(),stampedRef.getStamp() + 1);
+            stampedRef.compareAndSet(10,11,stamp,stamp + 1);
             System.out.println(Thread.currentThread().getName() + "第二次版本号：" + stampedRef.getStamp());
             stampedRef.compareAndSet(11,10,stampedRef.getStamp(),stampedRef.getStamp() + 1);
             System.out.println(Thread.currentThread().getName() + "第三次版本号：" + stampedRef.getStamp());
         },"张三").start();
         new Thread(()->{
             try{
-                System.out.println(Thread.currentThread().getName() + "第一次版本号：" + stampedRef.getStamp());
+                System.out.println(Thread.currentThread().getName() + "第一次版本号：" + stamp);
                 TimeUnit.SECONDS.sleep(2);
-                boolean success = stampedRef.compareAndSet(10,12,stampedRef.getStamp(),stampedRef.getStamp() + 1);
+                boolean success = stampedRef.compareAndSet(10,12,stamp,stamp + 1);
                 System.out.println(Thread.currentThread().getName() + "第二次版本号：" + stampedRef.getStamp() + ",是否成功：" + success);
                 System.out.println(Thread.currentThread().getName() + "当前实际值：" + stampedRef.getReference());
             }catch (Exception e){

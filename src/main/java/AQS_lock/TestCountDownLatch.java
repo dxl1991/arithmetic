@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
  * 场景：多人赛跑，所有人到达终点后开始排名（所有线程到达一个状态后，然后去做别的事情）
  */
 public class TestCountDownLatch {
-    private CountDownLatch countDownLatch = new CountDownLatch(4);
+    private CountDownLatch countDownLatch = new CountDownLatch(0);
 
     public static void main(String[] args) {
         new TestCountDownLatch().begin();
@@ -22,7 +22,7 @@ public class TestCountDownLatch {
         Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 4; i++) {
             int result = random.nextInt(3) + 1;
-            new Thread(new Runner(result, i)).start();
+            //new Thread(new Runner(result, i)).start();
         }
         try {
             countDownLatch.await();
@@ -48,10 +48,10 @@ public class TestCountDownLatch {
             try {
                 Thread.sleep(result * 10000);
                 System.out.println(name + "号完成比赛");
-                countDownLatch.countDown();
-                //TODO 所有线程都countDown()后执行
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                countDownLatch.countDown();
             }
         }
     }

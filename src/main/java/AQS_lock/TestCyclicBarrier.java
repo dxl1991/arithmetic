@@ -41,6 +41,7 @@ public class TestCyclicBarrier {
                 System.out.println(name + "号到达");
                 cyclicBarrier.await();
                 //TODO 计数器减至0后执行
+                System.out.println(name + "最终执行");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (BrokenBarrierException e) {

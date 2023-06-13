@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  * @Author dengxinlong
  * @Date 2020/5/8 22:11
  * @slogan CODE IS TRUTH
- * 队列里用了PriorityQueue存数据，所以是有序出队，每个元素还有一个延时时间，到了延时时间才能出队
+ * 队列里用了PriorityQueue存数据，所以是有序出队，每个元素还有一个延时时间，到了延时时间才能出队（不会按延迟时间排序，可以自己实现排序规则）
  */
 public class TestDelayQueue {
     public static void main(String[] args) throws InterruptedException {
