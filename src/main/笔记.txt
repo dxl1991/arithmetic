@@ -138,13 +138,20 @@ G1（Garbage First）收集器：
   过程：初始标记、并发标记、最终标记、筛选回收
 
 ZGC（The Z Garbage Collector）
-  JDK 11中推出的一款低延迟垃圾回收器
+  JDK 11中推出的一款低延迟垃圾回收器， JDK 15开始可以正式投入生产使用
+      开启选项：–XX:+UseZGC
       停顿时间不超过10ms；
-      停顿时间不会随着堆的大小，或者活跃对象的大小而增加；
-      支持8MB~4TB级别的堆（未来支持16TB）。
+      STW时间不会随着堆的大小，或者活跃对象的大小而增加；STW时间跟 GC Roots 数量成正比；
+      最大支持 16TB 的大堆，最小支持 8MB 的小堆
+      跟 G1 相比，对应用程序吞吐量的影响小于 15 %
+      ZGC 也有一个缺点，就是浮动垃圾，ZGC 的整个执行过程耗时还是挺长的，这个过程中创建的对象只能等下次GC的时候回收
   与CMS中的ParNew和G1类似，ZGC也采用标记-复制算法，不过ZGC对该算法做了重大改进：ZGC在标记、转移和重定位阶段几乎都是并发的，这是ZGC实现停顿时间小于10ms目标的最关键原因
   ZGC只有三个STW阶段：初始标记，再标记，初始转移
   ZGC通过着色指针和读屏障技术，解决了转移过程中准确访问对象的问题，实现了并发转移.
+  内存多重映射：
+      把同一块物理内存映射为 Marked0、Marked1 和 Remapped 三个虚拟内存
+      在同一个时间点内只能有一个有效
+      ZGC 就是通过这三个视图空间的切换，来完成并发的垃圾回收
 
 问题：当磁盘IO压力很大时，JVM可能被阻塞一段较长的时间，导致gc时间很长
     1、JVM GC需要通过发起系统调用write()，来记录GC行为。
@@ -383,6 +390,8 @@ AQS（抽象的队列式同步器）原理
 
 jstack用于生成java虚拟机当前时刻的线程快照
 jstack -l pid > D:\jstatck.txt  把进程线程信息写入jstatck.txt文件
+jstack -l pid | more 在线查看进程快照（了解线程当前正在执行什么代码）
+jstack -l pid | grep 线程id或名字 -A 20
 可以看到线程获取了哪些资源，正在等待哪些资源，从而判断哪两个线程死锁。写代码的时候给线程命名，这样就好找问题
 分析工具：https://www.ibm.com/support/pages/ibm-thread-and-monitor-dump-analyzer-java-tmda
 查找执行时间最长的线程：https://www.cnblogs.com/chengJAVA/p/5821218.html

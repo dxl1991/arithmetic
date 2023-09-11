@@ -1,4 +1,5 @@
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -104,8 +106,40 @@ public class TestClass {
 //        }
 //        System.out.println(sum);
 //        getWin(data);
-        System.out.println(Long.MAX_VALUE);
-        System.out.println(920000000 * RANK_SCORE_SALT);
+//testCell();
+        try{
+            try{
+                int a = 0;
+                System.out.println(1 / a);
+            }finally {
+                System.out.println("finally-----------");
+            }
+        }catch (Exception e){
+            System.out.println("error-----------"+e.getMessage());
+        }
+    }
+
+    private static int getWeekOfYear(Date date){
+        Calendar instance = Calendar.getInstance();
+        instance.setTimeInMillis(date.getTime() - TimeUnit.DAYS.toMillis(1));
+        System.out.println(instance.get(Calendar.DAY_OF_WEEK));
+        return instance.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    static void testCell(){
+        int dirX = 0;
+        int dirY = -1;
+        int startCellCol = 0;
+        int startCellRow = 0;
+        for(int i=1;i>=-1;i--){
+            for(int j=-1;j<=1;j++){
+                int tempX = dirX == 0 ? 0 : dirX * i;
+                int tempY = dirY == 0 ? j : dirY * j;
+                int cellCol = startCellCol + tempX ;
+                int cellRow = startCellRow + tempY ;
+                System.out.println(cellCol+","+cellRow);
+            }
+        }
     }
 
     static void testIntArray(Integer... data){
