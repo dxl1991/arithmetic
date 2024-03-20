@@ -1,5 +1,11 @@
+import com.alibaba.fastjson.JSONObject;
+import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.collection.LongObjectMap.PrimitiveEntry;
+import io.vertx.core.json.JsonObject;
+
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -15,6 +21,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +47,7 @@ import java.util.regex.Pattern;
  * @Date 2019/10/15
  */
 public class TestClass {
-    private static TestA a = new TestA("aaaaaaaaa");
+//    private static TestA a = new TestA("aaaaaaaaa");
     private TestA b = new TestA("bbbbbbbbb");
     public static final long RANK_SCORE_SALT = 10000000000L;
     TestClass() {
@@ -48,75 +55,107 @@ public class TestClass {
     }
 
     public static void main(String[] args) throws Exception{
-        //        new TestClass();
-        //        int count = 1000;
-        //        int max = 100000;
-        //        int[] temp = new int[count];
-        //        Random random = new Random();
-        //        for(int i=0;i<count;i++){
-        //            temp[i] = random.nextInt(max);
-        //        }
-        //        //        quik_sort(temp);
-        //        //        heapSort(temp);
-        //        //        int[] temp2 = topK3(temp, 4);
-        //        RadixSort.radixSort(temp,max);
-        //        for (int i : temp) {
-        //            System.out.print(i + ",");
-        //        }
-        //        Executors.newCachedThreadPool();
-//        System.out.println(Integer.toBinaryString(-3333));
-//        writeVarInt32(-3333);
-        //        new TestClass().testWait();
-//        AtomicInteger conv = new AtomicInteger(Integer.MAX_VALUE);
-//        System.out.println(conv.incrementAndGet());
-//        System.out.println(conv.incrementAndGet());
-//        testTreeMap();
-//        testConcurrentHashMap();
-//        System.out.println("邓新龙邓新龙邓新龙邓新龙".length());
-//        sort();
-//        testTreeMap();
-//        setStatus(1,true,1);
-//        testSchedule();
-        //testArray();
+//        printData("{\"body\":{\"闲谈的童子\":{\"等级\":30,\"对怪物伤害\":38320,\"击杀小怪\":9,\"被击杀\":1,\"英雄\":\"闪电兔\",\"承受伤害\":11796}},\"info\":\"\",\"status\":0}");
+        int type = 4;
+        String a = getStr(type);
+        System.out.println(a);
+    }
 
-       // merge(new int[]{1,2,3,0,0,0},3,new int[]{2,5,6},3);
-        //System.out.println(lengthOfLongestSubstring("pwwkew"));
-        //System.out.println(longestCommonPrefix(new String[]{"aflow","afloor","afloat"}));
-        //System.out.println(reverseWords("a good   example"));
-        //System.out.println(threeSum(new int[]{-4,-2,1,-5,-4,-4,4,-2,0,4,0,-2,3,1,-5,0}));
-        //System.out.println(pivotIndex(new int[]{1, 2, 3}));
-        //System.out.println(searchInsert(new int[]{1,3,5,6},7));
-        //merge(new int[][]{{1,3},{2,6},{8,10},{15,18}});
-        //System.out.println(hammingWeight(00001011));
-        //testFor();
-       // testTimeZone();
-//        testCPU50Per();
-//        Map<String, String> content = new HashMap<>();
-//        content.put("zh","");
-//        System.out.println(content.values().iterator().next());
-//        int data = 0;
-//        int sum = 0;
-//        for(int i=0;i<100;i++){
-//            boolean win = new Random().nextBoolean();
-//            if(win && i >= 80){
-//                sum++;
-//            }
-//            data = setCount(data,win);
-//            //System.out.print("第"+i+"次"+win+",");
-//        }
-//        System.out.println(sum);
-//        getWin(data);
-//testCell();
-        try{
-            try{
-                int a = 0;
-                System.out.println(1 / a);
-            }finally {
-                System.out.println("finally-----------");
+    public static String getStr(int type){
+        return switch(type){
+            case 1 -> "1";
+            case 2 -> "2";
+            case 4 -> {
+                yield "5";
             }
-        }catch (Exception e){
-            System.out.println("error-----------"+e.getMessage());
+            default -> "0";
+        };
+    }
+
+    private static void printData(String s){
+        System.out.print("名字\t");
+        System.out.print("英雄\t");
+        System.out.print("等级\t");
+        System.out.print("击杀玩家\t");
+        System.out.print("最多连杀\t");
+        System.out.print("击杀boss\t");
+        System.out.print("击杀小怪\t");
+        System.out.print("被击杀\t");
+        System.out.print("KDA\t");
+        System.out.print("对玩家伤害\t");
+        System.out.print("对boss伤害\t");
+        System.out.print("承受伤害\t");
+        System.out.println();
+        JSONObject parse = (JSONObject) JSONObject.parse(s);
+        JSONObject parse1 = (JSONObject) JSONObject.parse(parse.get("body").toString());
+        for(Entry<String, Object> entry : parse1.entrySet()){
+            System.out.print(entry.getKey());
+            System.out.print("\t");
+            JSONObject parse2 = (JSONObject) JSONObject.parse(entry.getValue().toString());
+            System.out.print(parse2.getOrDefault("英雄",""));
+            System.out.print("\t");
+            System.out.print(parse2.getOrDefault("等级",0));
+            System.out.print("\t");
+            int killCount = (int)parse2.getOrDefault("击杀玩家", 0);
+            System.out.print(killCount);
+            System.out.print("\t");
+            System.out.print(parse2.getOrDefault("最多连杀",0));
+            System.out.print("\t");
+            System.out.print(parse2.getOrDefault("击杀boss",0));
+            System.out.print("\t");
+            System.out.print(parse2.getOrDefault("击杀小怪",0));
+            System.out.print("\t");
+            int deadCount = (int)parse2.getOrDefault("被击杀", 0);
+            System.out.print(deadCount);
+            System.out.print("\t");
+            printKDA(killCount,deadCount);
+            System.out.print("\t");
+            printData((int)parse2.getOrDefault("对玩家伤害", 0));
+            System.out.print("\t");
+            printData((int)parse2.getOrDefault("对boss伤害", 0));
+            System.out.print("\t");
+            printData((int)parse2.getOrDefault("承受伤害", 0));
+            System.out.println();
         }
+    }
+
+    private static void printKDA(int killCount,int deadCount){
+        if(deadCount == 0){
+            System.out.print(killCount);
+        }else{
+            DecimalFormat decimalFormat = new DecimalFormat("#0.0");
+            String kda = decimalFormat.format(killCount * 1f / deadCount);
+            System.out.print(kda);
+        }
+    }
+
+    private static void printData(int value){
+        if(value <= 10000){
+            System.out.print(value);
+            return;
+        }
+        value /= 100;
+        System.out.print(value / 100f + "w");
+    }
+
+    public static int longestConsecutive(int[] nums) {
+        if(nums.length <= 1){
+            return nums.length;
+        }
+        Arrays.sort(nums);
+        int max = 1;
+        int count = 1;
+        for(int i=1;i<nums.length;i++){
+            if(nums[i] == nums[i - 1] + 1){
+                count++;
+            }else if(nums[i] == nums[i - 1]){
+                continue;
+            }else {
+                max = Math.max(count , max);
+                count = 1;
+            }
+        }
+        return max;
     }
 
     private static int getWeekOfYear(Date date){
