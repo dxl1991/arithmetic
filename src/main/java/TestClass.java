@@ -2,6 +2,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.util.collection.LongObjectHashMap;
 import io.netty.util.collection.LongObjectMap.PrimitiveEntry;
 import io.vertx.core.json.JsonObject;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
@@ -55,10 +56,14 @@ public class TestClass {
     }
 
     public static void main(String[] args) throws Exception{
-//        printData("{\"body\":{\"闲谈的童子\":{\"等级\":30,\"对怪物伤害\":38320,\"击杀小怪\":9,\"被击杀\":1,\"英雄\":\"闪电兔\",\"承受伤害\":11796}},\"info\":\"\",\"status\":0}");
-        int type = 4;
-        String a = getStr(type);
-        System.out.println(a);
+        int x = 50000;
+        long n = 1L * x * x;
+        System.out.println(n);
+    }
+
+    public static Comparator<TestA> nearestComparator1() {
+        Comparator<TestA> comparing = Comparator.comparing(unitObj -> unitObj.value);
+        return comparing.reversed();
     }
 
     public static String getStr(int type){

@@ -12,6 +12,7 @@ public class TestA implements Cloneable{
         this.s = "bbbbbb";
     }
     String s;
+    public int value;
     TestA(String s){
         System.out.println(this.s);
         this.s = s;
