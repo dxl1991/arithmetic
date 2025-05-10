@@ -2,8 +2,12 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.util.collection.LongObjectHashMap;
 import io.netty.util.collection.LongObjectMap.PrimitiveEntry;
 import io.vertx.core.json.JsonObject;
+import util.ListFastThreadLocal;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -48,6 +52,8 @@ import java.util.regex.Pattern;
  * @Date 2019/10/15
  */
 public class TestClass {
+    private static final ListFastThreadLocal<String> replayPojoTL = new ListFastThreadLocal<>();
+    public static final float EPSILON = 1.1920928955078125E-7f;
 //    private static TestA a = new TestA("aaaaaaaaa");
     private TestA b = new TestA("bbbbbbbbb");
     public static final long RANK_SCORE_SALT = 10000000000L;
@@ -56,9 +62,40 @@ public class TestClass {
     }
 
     public static void main(String[] args) throws Exception{
-        int x = 50000;
-        long n = 1L * x * x;
-        System.out.println(n);
+        long a = 2565602741256246l;
+        long b = a >> 15;
+        long cd = a & 0x7FFF;
+        System.out.println(cd);
+        throw new RuntimeException("sfsf");
+    }
+
+    /**
+     * 判断 IP 是否属于 100.64.0.0/10 网段
+     * @param ipAddress IPv4 地址字符串（如 "100.64.1.1"）
+     * @return true=属于该网段，false=不属于或输入无效
+     */
+    public static boolean isCGNATAddress(String ipAddress) {
+        try {
+            // 1. 将 IP 地址转换为 32 位整数
+            InetAddress inetAddr = InetAddress.getByName(ipAddress);
+            byte[] octets = inetAddr.getAddress();
+            if (octets.length != 4) return false; // 确保是 IPv4
+
+            // 将字节转换为无符号整数后拼接为 32 位整数
+            int ipInt = ((octets[0] & 0xFF) << 24) |
+                    ((octets[1] & 0xFF) << 16) |
+                    ((octets[2] & 0xFF) << 8)  |
+                    (octets[3] & 0xFF);
+
+            // 2. 定义 100.64.0.0/10 网段的掩码和基准值
+            final int CGNAT_MASK = 0xFFC00000;   // /10 掩码（前10位为1）
+            final int CGNAT_BASE  = 0x64400000;   // 100.64.0.0 的十六进制
+
+            // 3. 位运算判断：保留前10位，与基准值比较
+            return (ipInt & CGNAT_MASK) == CGNAT_BASE;
+        } catch (UnknownHostException e) {
+            return false; // 无效的 IP 格式直接返回 false
+        }
     }
 
     public static Comparator<TestA> nearestComparator1() {

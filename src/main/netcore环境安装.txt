@@ -14,9 +14,10 @@
 4、打包
    cd到项目根目录（csproj文件所在目录）
    dotnet build --runtime linux-x64
+   dotnet build --runtime win-x64
 
 5、运行程序
-  dotnet xxxx.dll
+  dotnet xxxx.dll 参数1 参数2 ...
 运行程序报错：
 Failed to load , error: libunwind.so.8: cannot open shared object file: No such file or directory
 Failed to bind to CoreCLR at '/game/testMono/Echoserver/linux-x64/libcoreclr.so'

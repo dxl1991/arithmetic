@@ -548,8 +548,8 @@ linux root 目录下没有.ssh目录
 .git/refs/heads 是个文件夹，包含本地分支列表
 git checkout dca15df  可以从某个提交记录检出，此时HEAD指向这个提交记录，处于一个临时分支
 git checkout -b 分支名 origin/远端分支名 创建一个分支并切换过去（从远端分支创建）
-git branch 分支名 dca15df 从某个提交记录创建一个新分支
-git branch 分支名 origin/远端分支名 从远端分支创建一个新分支
+git branch 分支名 dca15df 从某个提交记录创建一个新分支
+git branch 分支名 origin/远端分支名 从远端分支创建一个新分支
 git branch -D 分支名 强行删除一个未合并的分支
 git rebase -i dca15df(或者 HEAD~2) 将几次提交合并成一次提交
 git push origin master:master  前一个master本地的master，后一个master远端master。如果两个分支相同，可以都省略
@@ -558,6 +558,7 @@ git merge 分支名  把分支合并到当前分支
 git merge --abort 出现冲突后，放弃这次合并，还原到合并之前的状态
 git merge --continue 解决完冲突后继续完成合并
 git reset --hard dca15df 回退到某一次提交  ，再用git push -f 强推到远端
+git reset --hard origin/master 将本地分支强制设置和远端一致
 git checkout .  撤销对所有已修改但未提交的文件的修改，但不包括新增的文件
 git checkout [filename]    撤销对指定文件的修改，[filename]为文件名
 git cherry-pick 82ecb31 在当前分支合并82ecb31记录（git不同分支的每一次提交id都是唯一，所以可以用这个方法合并其他分支的某一次提交到当前分支）
@@ -766,6 +767,7 @@ cmd1&&cmd2 cmd1执行完毕并正确，则继续执行cmd2
 cmd1||cmd2 cmd1执行完毕并错误，则继续执行cmd2
 cat a.txt | wc 统计a.txt有多少行、字数、字符数
 grep 'the' a.txt 查找a.txt中包含the的行
+grep 'the' a.txt | wc -l 统计a.txt中包含the的行数
 grep '^the' a.txt 查找a.txt中以the开头的行
 grep 'the$' a.txt 查找a.txt中以the结尾的行
 find / -name check.sh 全局查找check.sh文件
@@ -818,6 +820,8 @@ id dxl 查看dxl的账号信息
 w或者who查看当前已登陆系统的账号
 mail命令可以发邮件和查看邮件
 
+mysql查询结果显示优化：在查询语句末尾加上 \G
+select * from t_u_account where player_id = 124727091843073 \G;
 
 分布式事物：
   定义：分布式事务就是为了保证不同数据库的数据一致性
