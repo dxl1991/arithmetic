@@ -882,6 +882,11 @@ java在windows，linux上使用的都是一对一模型。如果是N：1，那�
 Linux查看端口占用
 netstat -tunlp|grep 端口号
 
+Linux查看端口占用
+查看端口：netstat -ano | findstr :端口号
+   TCP    127.0.0.1:101          0.0.0.0:0              LISTENING       21252
+杀掉端口：taskkill /pid 21252 /f
+
 vmstat详解
   字段说明：
   Procs（进程）：
@@ -960,3 +965,33 @@ vim编辑器
 /向前查找
 ?向后查找
 n键来跳转到下一个匹配项，N 键（大写）来跳转到上一个匹配项
+
+查看堆内存实际使用情况：jcmd 28654 GC.heap_info
+28654:
+    garbage-first heap   total 12582912K, used 1744723K [0x0000000500000000, 0x0000000800000000)  //分配12G，实际使用1.7G
+    region size 8192K, 58 young (475136K), 11 survivors (90112K)
+    Metaspace       used 119641K, committed 121536K, reserved 557056K
+    class space    used 11641K, committed 12416K, reserved 425984K
+解析：
+    total heap	12582912 KB (12 GB)	            堆总大小（-Xmx 设置的值）
+    used heap	1744723 KB (~1.66 GB)	        当前堆已使用量
+    region size	8192 KB (8 MB)	                G1 的 Region 大小
+    young regions	58 (475136 KB ≈ 464 MB)	    年轻代（Eden + Survivor）Region 数量
+    survivor regions	11 (90112 KB ≈ 88 MB)	Survivor 区 Region 数量
+
+总结：堆使用率：used / total = 1.66GB / 12GB ≈ 13.8%，说明堆内存占用较低，没有内存压力
+     JVM 堆内存（-Xmx 设置的 12GB，即使未完全使用，OS 也可能统计为 RES，所以top命令显示进程占用内存很大
+
+
+linux保存git账号密码凭证
+1、 创建凭证文件
+cd ~
+touch .git-credentials
+vim .git-credentials
+
+2、添加凭证内容
+协议://用户名:密码@主机名:端口的结构
+https://username:password@gitlab3.szddrf.com:3000
+
+3、配置 Git 使用该文件
+git config --global credential.helper store --file=~/.git-credentials

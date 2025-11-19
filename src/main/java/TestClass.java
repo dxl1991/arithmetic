@@ -62,11 +62,9 @@ public class TestClass {
     }
 
     public static void main(String[] args) throws Exception{
-        long a = 2565602741256246l;
-        long b = a >> 15;
-        long cd = a & 0x7FFF;
-        System.out.println(cd);
-        throw new RuntimeException("sfsf");
+        long c = 10;
+        c *= 1.2;
+        System.out.println(c);
     }
 
     /**
